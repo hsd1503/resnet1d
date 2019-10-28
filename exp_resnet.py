@@ -7,6 +7,7 @@ Shenda Hong, Oct 2019
 import numpy as np
 from collections import Counter
 from tqdm import tqdm
+from matplotlib import pyplot as plt
 
 from util import *
 
@@ -137,6 +138,13 @@ class Bottleneck(nn.Module):
         return out
     
 class ResNet(nn.Module):
+    """
+    input:
+        X: (n_samples, n_channel, n_length)
+        Y: (n_samples)
+    output:
+        out: (n_samples)
+    """
 
     def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, verbose=False):
         super(ResNet, self).__init__()
@@ -219,29 +227,30 @@ class ResNet(nn.Module):
     
 if __name__ == "__main__":
     
-    data, label = read_data()
+    data, label = read_data_generated(n_samples=100, n_length=200, n_channel=3, n_classes=3)
     print(data.shape, Counter(label))
-    dataset = MyDataset(data, label)
-    dataloader = DataLoader(dataset, batch_size=5)
     
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model = ResNet(in_channels=12, base_filters=64, kernel_size=16, stride=3, n_block=10, n_classes=3)
-    model.to(device)
-
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
-    loss_func = torch.nn.CrossEntropyLoss()
+#     dataset = MyDataset(data, label)
+#     dataloader = DataLoader(dataset, batch_size=5)
     
-    prog_iter = tqdm(dataloader, desc="Training", leave=False)
-    for batch_idx, batch in enumerate(prog_iter):
+#     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+#     model = ResNet(in_channels=12, base_filters=64, kernel_size=16, stride=3, n_block=10, n_classes=3)
+#     model.to(device)
 
-        input_x, input_y = tuple(t.to(device) for t in batch)
-        pred = model(input_x)
+#     optimizer = optim.Adam(model.parameters(), lr=1e-3)
+#     loss_func = torch.nn.CrossEntropyLoss()
+    
+#     prog_iter = tqdm(dataloader, desc="Training", leave=False)
+#     for batch_idx, batch in enumerate(prog_iter):
 
-        loss = loss_func(pred, input_y)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        print(loss)
+#         input_x, input_y = tuple(t.to(device) for t in batch)
+#         pred = model(input_x)
+
+#         loss = loss_func(pred, input_y)
+#         optimizer.zero_grad()
+#         loss.backward()
+#         optimizer.step()
+#         print(loss)
     
     
 #         break
