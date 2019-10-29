@@ -45,6 +45,7 @@ class MyConv1dPadSame(nn.Module):
         
         net = x
         
+        # compute pad shape
         in_dim = net.shape[-1]
         out_dim = (in_dim + self.stride - 1) // self.stride
         p = max(0, (out_dim - 1) * self.stride + self.kernel_size - in_dim)
@@ -70,6 +71,7 @@ class MyMaxPool1dPadSame(nn.Module):
         
         net = x
         
+        # compute pad shape
         in_dim = net.shape[-1]
         out_dim = (in_dim + self.stride - 1) // self.stride
         p = max(0, (out_dim - 1) * self.stride + self.kernel_size - in_dim)
@@ -101,14 +103,14 @@ class Bottleneck(nn.Module):
 
         # the first conv
         self.bn1 = nn.BatchNorm1d(in_channels)
-        self.relu1 = nn.ReLU()
+        self.relu1 = nn.ReLU(inplace=True)
         self.do1 = nn.Dropout(p=0.5)
         self.conv1 = MyConv1dPadSame(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=self.stride)
 
         # the second conv
         self.bn2 = nn.BatchNorm1d(out_channels)
-        self.relu2 = nn.ReLU()
-        self.do2 = nn.Dropout()
+        self.relu2 = nn.ReLU(inplace=True)
+        self.do2 = nn.Dropout(p=0.5)
         self.conv2 = MyConv1dPadSame(in_channels=out_channels, out_channels=out_channels, kernel_size=kernel_size, stride=1)
                 
         self.max_pool = MyMaxPool1dPadSame(kernel_size=self.stride)
@@ -179,7 +181,7 @@ class ResNet1D(nn.Module):
         # first block
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
         self.first_block_bn = nn.BatchNorm1d(base_filters)
-        self.first_block_relu = nn.ReLU()
+        self.first_block_relu = nn.ReLU(inplace=True)
                 
         # residual blocks
         self.bottleneck_list = nn.ModuleList()
@@ -210,7 +212,7 @@ class ResNet1D(nn.Module):
 
         # final prediction
         self.final_bn = nn.BatchNorm1d(out_channels)
-        self.final_relu = nn.ReLU()
+        self.final_relu = nn.ReLU(inplace=True)
         self.dense = nn.Linear(out_channels, n_classes)
         self.softmax = nn.Softmax(dim=1)
         

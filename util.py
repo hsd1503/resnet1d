@@ -3,18 +3,21 @@ import numpy as np
 
 def read_data_generated(n_samples, n_length, n_channel, n_classes, verbose=False):
     """
-    generated data
+    Generated data
+    
+    This generated data contains one noise channel class, plus unlimited number of sine channel classes which are different on frequency. 
+    
     """    
     all_X = []
     all_Y = []
     
-    # noise
+    # noise channel class
     X_noise = np.random.rand(n_samples, n_channel, n_length)
     Y_noise = np.array([0]*n_samples)
     all_X.append(X_noise)
     all_Y.append(Y_noise)
     
-    # sin
+    # sine channel classe
     x = np.arange(n_length)
     for i_class in range(n_classes-1):
         scale = 2**i_class
@@ -37,6 +40,7 @@ def read_data_generated(n_samples, n_length, n_channel, n_classes, verbose=False
     all_X = all_X[shuffle_idx]
     all_Y = all_Y[shuffle_idx]
     
+    # random pick some and plot
     if verbose:
         for _ in np.random.permutation(all_Y.shape[0])[:10]:
             fig = plt.figure()

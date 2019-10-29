@@ -22,13 +22,11 @@ from torch.utils.data import Dataset, DataLoader
     
 if __name__ == "__main__":
     
-    # hyper-parameters
+    # make data
     n_samples = 1000
     n_length = 1000
     n_channel = 3
-    n_classes = 3
-    
-    # make data
+    n_classes = 3    
     data, label = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
     print(data.shape, Counter(label))
     dataset = MyDataset(data, label)
@@ -36,6 +34,7 @@ if __name__ == "__main__":
     
     # make model
     device = torch.device('cuda:4' if torch.cuda.is_available() else 'cpu')
+    ## change the hyper-parameters for your own data
     model = ResNet1D(in_channels=n_channel, base_filters=64, kernel_size=16, stride=3, n_block=10, n_classes=n_classes, verbose=False)
     model.to(device)
 
@@ -71,6 +70,7 @@ if __name__ == "__main__":
         all_pred_prob.append(pred.cpu().data.numpy())
     all_pred_prob = np.concatenate(all_pred_prob)
     all_pred = np.argmax(all_pred_prob, axis=1)
+    ## classification report
     print(classification_report(all_pred, label_test))
     
     
