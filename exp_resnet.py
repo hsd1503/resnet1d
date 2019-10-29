@@ -1,5 +1,5 @@
 """
-resnet for signal data, pytorch version
+resnet for 1-d signal data, pytorch version
 
 Shenda Hong, Oct 2019
 """
@@ -8,12 +8,14 @@ import numpy as np
 from collections import Counter
 from tqdm import tqdm
 from matplotlib import pyplot as plt
+from sklearn.metrics import classification_report 
 
 from util import *
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
 class MyDataset(Dataset):
@@ -37,17 +39,22 @@ class MyConv1dPadSame(nn.Module):
         self.out_channels = out_channels
         self.kernel_size = kernel_size
         self.stride = stride
+        self.conv = torch.nn.Conv1d(in_channels=self.in_channels, out_channels=self.out_channels, kernel_size=self.kernel_size, stride=self.stride)
 
     def forward(self, x):
-        in_dim = x.shape[-1]
+        
+        net = x
+        
+        in_dim = net.shape[-1]
         out_dim = (in_dim + self.stride - 1) // self.stride
         p = max(0, (out_dim - 1) * self.stride + self.kernel_size - in_dim)
         pad_left = p // 2
         pad_right = p - pad_left
-        net = torch.nn.Sequential(
-            nn.ConstantPad1d((pad_left, pad_right), 0),
-            torch.nn.Conv1d(in_channels=self.in_channels, out_channels=self.out_channels, kernel_size=self.kernel_size, stride=self.stride))
-        return net(x)
+        net = F.pad(net, (pad_left, pad_right), "constant", 0)
+        
+        net = self.conv(net)
+
+        return net
         
 class MyMaxPool1dPadSame(nn.Module):
     """
@@ -57,17 +64,22 @@ class MyMaxPool1dPadSame(nn.Module):
         super(MyMaxPool1dPadSame, self).__init__()
         self.kernel_size = kernel_size
         self.stride = 1
+        self.max_pool = torch.nn.MaxPool1d(kernel_size=self.kernel_size)
 
     def forward(self, x):
-        in_dim = x.shape[-1]
+        
+        net = x
+        
+        in_dim = net.shape[-1]
         out_dim = (in_dim + self.stride - 1) // self.stride
         p = max(0, (out_dim - 1) * self.stride + self.kernel_size - in_dim)
         pad_left = p // 2
         pad_right = p - pad_left
-        net = torch.nn.Sequential(
-            nn.ConstantPad1d((pad_left, pad_right), 0),
-            torch.nn.MaxPool1d(kernel_size=self.kernel_size))
-        return net(x)    
+        net = F.pad(net, (pad_left, pad_right), "constant", 0)
+        
+        net = self.max_pool(net)
+        
+        return net
     
 class Bottleneck(nn.Module):
     """
@@ -81,18 +93,17 @@ class Bottleneck(nn.Module):
         self.out_channels = out_channels
         self.stride = stride
         self.downsample = downsample
+        if self.downsample:
+            self.stride = stride
+        else:
+            self.stride = 1
         self.is_first_block = is_first_block
 
         # the first conv
         self.bn1 = nn.BatchNorm1d(in_channels)
         self.relu1 = nn.ReLU()
         self.do1 = nn.Dropout(p=0.5)
-        if self.downsample:
-            # if downsample, set stride > 1
-            self.conv1 = MyConv1dPadSame(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=self.stride)
-        else:
-            # if not downsample, set stride = 1
-            self.conv1 = MyConv1dPadSame(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=1)
+        self.conv1 = MyConv1dPadSame(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=self.stride)
 
         # the second conv
         self.bn2 = nn.BatchNorm1d(out_channels)
@@ -129,7 +140,7 @@ class Bottleneck(nn.Module):
             identity = identity.transpose(-1,-2)
             ch1 = (self.out_channels-self.in_channels)//2
             ch2 = self.out_channels-self.in_channels-ch1
-            identity = nn.ConstantPad1d((ch1, ch2), 0)(identity)
+            identity = F.pad(identity, (ch1, ch2), "constant", 0)
             identity = identity.transpose(-1,-2)
         
         # shortcut
@@ -139,11 +150,22 @@ class Bottleneck(nn.Module):
     
 class ResNet(nn.Module):
     """
-    input:
+    
+    Input:
         X: (n_samples, n_channel, n_length)
         Y: (n_samples)
-    output:
+        
+    Output:
         out: (n_samples)
+        
+    Pararmetes:
+        in_channels: dim of input, the same as n_channel
+        base_filters: number of filters in the first several Conv layer, it will double at every 4 layers
+        kernel_size: width of kernel
+        stride: stride of kernel moving
+        n_block: number of Bottleneck blocks
+        n_classes: number of classes
+        
     """
 
     def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, verbose=False):
@@ -160,7 +182,7 @@ class ResNet(nn.Module):
         self.first_block_relu = nn.ReLU()
                 
         # residual blocks
-        self.bottleneck_list = []
+        self.bottleneck_list = nn.ModuleList()
         for i_block in range(self.n_block):
             # is_first_block
             if i_block == 0:
@@ -227,34 +249,56 @@ class ResNet(nn.Module):
     
 if __name__ == "__main__":
     
-    data, label = read_data_generated(n_samples=100, n_length=200, n_channel=3, n_classes=3)
+    # hyper-parameters
+    n_samples = 1000
+    n_length = 1000
+    n_channel = 3
+    n_classes = 3
+    
+    # make data
+    data, label = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
     print(data.shape, Counter(label))
+    dataset = MyDataset(data, label)
+    dataloader = DataLoader(dataset, batch_size=64)
     
-#     dataset = MyDataset(data, label)
-#     dataloader = DataLoader(dataset, batch_size=5)
-    
-#     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-#     model = ResNet(in_channels=12, base_filters=64, kernel_size=16, stride=3, n_block=10, n_classes=3)
-#     model.to(device)
+    # make model
+    device = torch.device('cuda:4' if torch.cuda.is_available() else 'cpu')
+    model = ResNet(in_channels=n_channel, base_filters=64, kernel_size=16, stride=3, n_block=10, n_classes=n_classes, verbose=False)
+    model.to(device)
 
-#     optimizer = optim.Adam(model.parameters(), lr=1e-3)
-#     loss_func = torch.nn.CrossEntropyLoss()
-    
-#     prog_iter = tqdm(dataloader, desc="Training", leave=False)
-#     for batch_idx, batch in enumerate(prog_iter):
+    # train
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    loss_func = torch.nn.CrossEntropyLoss()
+    all_loss = []
+    prog_iter = tqdm(dataloader, desc="Training", leave=False)
+    for batch_idx, batch in enumerate(prog_iter):
 
-#         input_x, input_y = tuple(t.to(device) for t in batch)
-#         pred = model(input_x)
+        input_x, input_y = tuple(t.to(device) for t in batch)
+        pred = model(input_x)
 
-#         loss = loss_func(pred, input_y)
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
-#         print(loss)
+        loss = loss_func(pred, input_y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        all_loss.append(loss.item())
     
+    plt.plot(all_loss)
     
-#         break
-    
+    # test
+    data_test, label_test = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
+    print(data_test.shape, Counter(label_test))
+    dataset_test = MyDataset(data_test, label_test)
+    dataloader_test = DataLoader(dataset_test, batch_size=64, drop_last=False)
+    prog_iter_test = tqdm(dataloader_test, desc="Testing", leave=False)
+    all_pred_prob = []
+    for batch_idx, batch in enumerate(prog_iter_test):
+        input_x, input_y = tuple(t.to(device) for t in batch)
+        pred = model(input_x)
+        all_pred_prob.append(pred.cpu().data.numpy())
+    all_pred_prob = np.concatenate(all_pred_prob)
+    all_pred = np.argmax(all_pred_prob, axis=1)
+    print(classification_report(all_pred, label_test))
     
     
     
