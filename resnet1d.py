@@ -1,6 +1,6 @@
 """
 resnet for 1-d signal data, pytorch version
- 
+
 Shenda Hong, Oct 2019
 """
 
@@ -9,8 +9,6 @@ from collections import Counter
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 from sklearn.metrics import classification_report 
-
-from util import *
 
 import torch
 import torch.nn as nn
