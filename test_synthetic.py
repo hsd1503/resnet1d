@@ -10,7 +10,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 from sklearn.metrics import classification_report 
 
-from util import *
+from util import read_data_generated
 from resnet1d import ResNet1D, MyDataset
 
 import torch
