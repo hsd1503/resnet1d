@@ -1,6 +1,6 @@
 """
 resnet for 1-d signal data, pytorch version
-
+ 
 Shenda Hong, Oct 2019
 """
 
