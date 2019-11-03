@@ -2,6 +2,10 @@
 
 This is a pytorch implementation of ResNet [0] on one-dimensional data classification. 
 
+# Usage
+
+python test_synthetic.py to test on synthetic data
+
 # Applications
 
 ## ECG Classification (PhysioNet/CinC Challenge 2017)
@@ -9,15 +13,6 @@ This is a pytorch implementation of ResNet [0] on one-dimensional data classific
 Dataset: "AF Classification from a short single lead ECG recording". Data can be found at https://archive.physionet.org/challenge/2017/#challenge-data Please use Revised labels (v3) at https://archive.physionet.org/challenge/2017/REFERENCE-v3.csv
 
 The model has been used in one of the First place solution (F1=0.83) [1, 2]. The original tensorflow (tflearn) version can be found at https://github.com/hsd1503/ENCASE. 
-
-
-
-## Others to be added
-
-
-# Run on synthetic data
-
-python test_synthetic.py
 
 
 
