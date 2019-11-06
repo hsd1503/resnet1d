@@ -1,6 +1,6 @@
 """
 resnet for 1-d signal data, pytorch version
-
+ 
 Shenda Hong, Oct 2019
 """
 
@@ -37,7 +37,11 @@ class MyConv1dPadSame(nn.Module):
         self.out_channels = out_channels
         self.kernel_size = kernel_size
         self.stride = stride
-        self.conv = torch.nn.Conv1d(in_channels=self.in_channels, out_channels=self.out_channels, kernel_size=self.kernel_size, stride=self.stride)
+        self.conv = torch.nn.Conv1d(
+            in_channels=self.in_channels, 
+            out_channels=self.out_channels, 
+            kernel_size=self.kernel_size, 
+            stride=self.stride)
 
     def forward(self, x):
         
@@ -85,7 +89,7 @@ class Bottleneck(nn.Module):
     """
     ResNet Bottleneck Block
     """
-    def __init__(self, in_channels, out_channels, kernel_size, stride, downsample, is_first_block=False):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, downsample, use_bn, is_first_block=False):
         super(Bottleneck, self).__init__()
         
         self.in_channels = in_channels
@@ -98,16 +102,17 @@ class Bottleneck(nn.Module):
         else:
             self.stride = 1
         self.is_first_block = is_first_block
+        self.use_bn = use_bn
 
         # the first conv
         self.bn1 = nn.BatchNorm1d(in_channels)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.relu1 = nn.ReLU()
         self.do1 = nn.Dropout(p=0.5)
         self.conv1 = MyConv1dPadSame(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=self.stride)
 
         # the second conv
         self.bn2 = nn.BatchNorm1d(out_channels)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.relu2 = nn.ReLU()
         self.do2 = nn.Dropout(p=0.5)
         self.conv2 = MyConv1dPadSame(in_channels=out_channels, out_channels=out_channels, kernel_size=kernel_size, stride=1)
                 
@@ -120,13 +125,15 @@ class Bottleneck(nn.Module):
         # the first conv
         out = x
         if self.is_first_block:
-            out = self.bn1(out)
+            if self.use_bn:
+                out = self.bn1(out)
             out = self.relu1(out)
             out = self.do1(out)
         out = self.conv1(out)
         
         # the second conv
-        out = self.bn2(out)
+        if self.use_bn:
+            out = self.bn2(out)
         out = self.relu2(out)
         out = self.do2(out)
         out = self.conv2(out)
@@ -156,7 +163,7 @@ class ResNet1D(nn.Module):
         Y: (n_samples)
         
     Output:
-        out: (n_samples, n_classes)
+        out: (n_samples)
         
     Pararmetes:
         in_channels: dim of input, the same as n_channel
@@ -168,18 +175,19 @@ class ResNet1D(nn.Module):
         
     """
 
-    def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, verbose=False):
+    def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, use_bn=True, verbose=False):
         super(ResNet1D, self).__init__()
         
         self.verbose = verbose
         self.n_block = n_block
         self.kernel_size = kernel_size
         self.stride = stride
+        self.use_bn = use_bn
 
         # first block
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
         self.first_block_bn = nn.BatchNorm1d(base_filters)
-        self.first_block_relu = nn.ReLU(inplace=True)
+        self.first_block_relu = nn.ReLU()
                 
         # residual blocks
         self.bottleneck_list = nn.ModuleList()
@@ -199,13 +207,20 @@ class ResNet1D(nn.Module):
                 in_channels = base_filters
                 out_channels = in_channels
             else:
-                in_channels = int(base_filters*2**((i_block-1)//2))
-                if downsample:
-                    out_channels = in_channels
-                else:
+                in_channels = int(base_filters*2**((i_block-1)//4))
+                if (i_block % 4 == 0) and (i_block != 0):
                     out_channels = in_channels * 2
+                else:
+                    out_channels = in_channels
             
-            tmp_block = Bottleneck(in_channels=in_channels, out_channels=out_channels, kernel_size=self.kernel_size, stride = self.stride, downsample=downsample, is_first_block=is_first_block)
+            tmp_block = Bottleneck(
+                in_channels=in_channels, 
+                out_channels=out_channels, 
+                kernel_size=self.kernel_size, 
+                stride = self.stride, 
+                downsample=downsample, 
+                use_bn = self.use_bn, 
+                is_first_block=is_first_block)
             self.bottleneck_list.append(tmp_block)
 
         # final prediction
@@ -218,13 +233,14 @@ class ResNet1D(nn.Module):
         
         out = x
         
-        # first block
+        # first conv
         if self.verbose:
             print('input shape', out.shape)
         out = self.first_block_conv(out)
         if self.verbose:
             print('after first conv', out.shape)
-        out = self.first_block_bn(out)
+        if self.use_bn:
+            out = self.first_block_bn(out)
         out = self.first_block_relu(out)
         
         # residual blocks, every bottleneck has two conv
@@ -237,10 +253,15 @@ class ResNet1D(nn.Module):
                 print(out.shape)
 
         # final prediction
-        out = self.final_bn(out)
+        if self.use_bn:
+            out = self.final_bn(out)
         out = self.final_relu(out)
         out = out.mean(-1)
+        if self.verbose:
+            print('final pooling', out.shape)
         out = self.dense(out)
+        if self.verbose:
+            print('dense', out.shape)
         out = self.softmax(out)
         if self.verbose:
             print('softmax', out.shape)

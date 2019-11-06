@@ -1,5 +1,5 @@
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 def read_data_generated(n_samples, n_length, n_channel, n_classes, verbose=False):
     """
