@@ -41,7 +41,8 @@ class MyConv1dPadSame(nn.Module):
             in_channels=self.in_channels, 
             out_channels=self.out_channels, 
             kernel_size=self.kernel_size, 
-            stride=self.stride)
+            stride=self.stride,
+            bias=False)
 
     def forward(self, x):
         
@@ -188,6 +189,7 @@ class ResNet1D(nn.Module):
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
         self.first_block_bn = nn.BatchNorm1d(base_filters)
         self.first_block_relu = nn.ReLU()
+        out_channels = base_filters
                 
         # residual blocks
         self.bottleneck_list = nn.ModuleList()
