@@ -44,7 +44,7 @@ def slide_and_cut(X, Y, window_size, stride, output_pid=False):
         if tmp_Y == 0:
             i_stride = stride
         elif tmp_Y == 1:
-            i_stride = stride//10
+            i_stride = stride//6 # use 10 for read_data_physionet_2
         elif tmp_Y == 2:
             i_stride = stride//2
         elif tmp_Y == 3:
