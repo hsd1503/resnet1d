@@ -121,7 +121,7 @@ if __name__ == "__main__":
         writer.add_scalar('F1/label_2', tmp_report['2']['f1-score'], _)
         writer.add_scalar('F1/label_3', tmp_report['3']['f1-score'], _)
 
-    
+     
     
     
     
