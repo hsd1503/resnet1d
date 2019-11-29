@@ -19,8 +19,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from tensorboardX import SummaryWriter
+from torchsummary import summary
 
-    
 if __name__ == "__main__":
 
     is_debug = False
@@ -29,18 +29,20 @@ if __name__ == "__main__":
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/resnet1d/challenge2017/debug')
     else:
-        writer = SummaryWriter('/nethome/shong375/log/resnext1d/challenge2017/class_4_dy_lr_eval_rerun')
+        # writer = SummaryWriter('/nethome/shong375/log/resnext1d/challenge2017/class_4_dy_lr_eval_rerun_reg-3_nosoftmax_fix')
+        writer = SummaryWriter('/nethome/shong375/log/resnext1d/challenge2017/class_4_dy_lr_eval_rerun_reg-3_nosoftmax_only_final_bn')
 
     # make data
     # preprocess_physionet() ## run this if you have no preprocessed data yet
     X_train, X_test, Y_train, Y_test, pid_test = read_data_physionet_4()
+    print(X_train.shape, Y_train.shape)
     dataset = MyDataset(X_train, Y_train)
     dataset_test = MyDataset(X_test, Y_test)
     dataloader = DataLoader(dataset, batch_size=batch_size)
     dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
     
     # make model
-    device = torch.device('cuda:4' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
     kernel_size = 16
     stride = 2
     n_block = 16
@@ -51,6 +53,7 @@ if __name__ == "__main__":
         stride=stride, 
         n_block=n_block, 
         n_classes=4, 
+        use_do=False, 
         verbose=True)
     model.to(device)
     pytorch_total_params = sum(p.numel() for p in model.parameters())
@@ -65,7 +68,7 @@ if __name__ == "__main__":
 
     # train and test
     model.verbose = False
-    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-3)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10)
     loss_func = torch.nn.CrossEntropyLoss()
 

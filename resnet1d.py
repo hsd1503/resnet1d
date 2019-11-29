@@ -161,7 +161,7 @@ class BottleneckX(nn.Module):
     """
     ResNeXt Bottleneck Block
     """
-    def __init__(self, in_channels, out_channels, kernel_size, stride, downsample, use_bn, is_first_block=False):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, downsample, use_bn, use_do, is_first_block=False):
         super(BottleneckX, self).__init__()
         
         self.in_channels = in_channels
@@ -175,6 +175,7 @@ class BottleneckX(nn.Module):
             self.stride = 1
         self.is_first_block = is_first_block
         self.use_bn = use_bn
+        self.use_do = use_do
 
         # the first conv
         self.bn1 = nn.BatchNorm1d(in_channels)
@@ -210,14 +211,16 @@ class BottleneckX(nn.Module):
             if self.use_bn:
                 out = self.bn1(out)
             out = self.relu1(out)
-            out = self.do1(out)
+            if self.use_do:
+                out = self.do1(out)
         out = self.conv1(out)
         
         # the second conv
         if self.use_bn:
             out = self.bn2(out)
         out = self.relu2(out)
-        out = self.do2(out)
+        if self.use_do:
+            out = self.do2(out)
         out = self.conv2(out)
         
         # if downsample, also downsample identity
@@ -257,7 +260,7 @@ class ResNet1D(nn.Module):
         
     """
 
-    def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, use_bn=True, verbose=False):
+    def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, use_bn=True, use_do=True, verbose=False):
         super(ResNet1D, self).__init__()
         
         self.verbose = verbose
@@ -265,6 +268,7 @@ class ResNet1D(nn.Module):
         self.kernel_size = kernel_size
         self.stride = stride
         self.use_bn = use_bn
+        self.use_do = use_do
 
         # first block
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
@@ -303,12 +307,14 @@ class ResNet1D(nn.Module):
                 stride = self.stride, 
                 downsample=downsample, 
                 use_bn = self.use_bn, 
+                use_do = self.use_do, 
                 is_first_block=is_first_block)
             self.bottleneck_list.append(tmp_block)
 
         # final prediction
         self.final_bn = nn.BatchNorm1d(out_channels)
         self.final_relu = nn.ReLU(inplace=True)
+        self.do = nn.Dropout(p=0.5)
         self.dense = nn.Linear(out_channels, n_classes)
         # self.softmax = nn.Softmax(dim=1)
         
@@ -342,10 +348,11 @@ class ResNet1D(nn.Module):
         out = out.mean(-1)
         if self.verbose:
             print('final pooling', out.shape)
+        out = self.do(out)
         out = self.dense(out)
         if self.verbose:
             print('dense', out.shape)
-        out = self.softmax(out)
+        # out = self.softmax(out)
         if self.verbose:
             print('softmax', out.shape)
         
@@ -371,7 +378,7 @@ class ResNeXt1D(nn.Module):
         
     """
 
-    def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, use_bn=True, verbose=False):
+    def __init__(self, in_channels, base_filters, kernel_size, stride, n_block, n_classes, use_bn=True, use_do=True, verbose=False):
         super(ResNeXt1D, self).__init__()
         
         self.verbose = verbose
@@ -379,6 +386,7 @@ class ResNeXt1D(nn.Module):
         self.kernel_size = kernel_size
         self.stride = stride
         self.use_bn = use_bn
+        self.use_do = use_do
 
         # first block
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
@@ -416,14 +424,16 @@ class ResNeXt1D(nn.Module):
                 stride = self.stride, 
                 downsample=downsample, 
                 use_bn = self.use_bn, 
+                use_do = self.use_do, 
                 is_first_block=is_first_block)
             self.bottleneck_list.append(tmp_block)
 
         # final prediction
         self.final_bn = nn.BatchNorm1d(out_channels)
         self.final_relu = nn.ReLU(inplace=True)
+        self.do = nn.Dropout(p=0.5)
         self.dense = nn.Linear(out_channels, n_classes)
-        self.softmax = nn.Softmax(dim=1)
+        # self.softmax = nn.Softmax(dim=1)
         
     def forward(self, x):
         
@@ -455,10 +465,11 @@ class ResNeXt1D(nn.Module):
         out = out.mean(-1)
         if self.verbose:
             print('final pooling', out.shape)
+        out = self.do(out)
         out = self.dense(out)
         if self.verbose:
             print('dense', out.shape)
-        out = self.softmax(out)
+        # out = self.softmax(out)
         if self.verbose:
             print('softmax', out.shape)
         
