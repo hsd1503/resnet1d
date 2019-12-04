@@ -6,6 +6,12 @@ This is a pytorch implementation of ResNet [0] on one-dimensional data classific
 
 python test_synthetic.py to test on synthetic data
 
+# Requirements
+
+python 3.7.5
+torch 1.2.0
+
+
 # Applications
 
 ## ECG Classification (PhysioNet/CinC Challenge 2017)
