@@ -8,8 +8,7 @@ python test_synthetic.py to test on synthetic data
 
 # Requirements
 
-python 3.7.5
-torch 1.2.0
+python 3.7.5, pytorch 1.2.0
 
 
 # Applications
