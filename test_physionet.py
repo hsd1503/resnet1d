@@ -29,7 +29,7 @@ if __name__ == "__main__":
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/resnet1d/challenge2017/debug')
     else:
-        writer = SummaryWriter('/nethome/shong375/log/resnext1d/challenge2017/class_4_dy_lr_eval_rerun_reg-3_nosoftmax_only_final_do_fixmissingbnrelu')
+        writer = SummaryWriter('/nethome/shong375/log/resnext1d/challenge2017/layer98')
 
     # make data
     # preprocess_physionet() ## run this if you have no preprocessed data yet
@@ -45,20 +45,24 @@ if __name__ == "__main__":
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
     kernel_size = 16
     stride = 2
-    n_block = 16
+    n_block = 48
+    downsample_gap = 6
+    increasefilter_gap = 12
     model = ResNet1D(
         in_channels=1, 
-        base_filters=352, # 64 for ResNet1D, 352 for ResNeXt1D
+        base_filters=128, # 64 for ResNet1D, 352 for ResNeXt1D
         kernel_size=kernel_size, 
         stride=stride, 
         groups=32, 
         n_block=n_block, 
         n_classes=4, 
-        use_do=False)
+        downsample_gap=downsample_gap, 
+        increasefilter_gap=increasefilter_gap, 
+        use_do=True)
     model.to(device)
-    summary(model, (X_train.shape[1], X_train.shape[2]), device=device_str)
 
-    exit()
+    summary(model, (X_train.shape[1], X_train.shape[2]), device=device_str)
+    # exit()
 
     # train and test
     model.verbose = False
@@ -94,10 +98,11 @@ if __name__ == "__main__":
         model.eval()
         prog_iter_test = tqdm(dataloader_test, desc="Testing", leave=False)
         all_pred_prob = []
-        for batch_idx, batch in enumerate(prog_iter_test):
-            input_x, input_y = tuple(t.to(device) for t in batch)
-            pred = model(input_x)
-            all_pred_prob.append(pred.cpu().data.numpy())
+        with torch.no_grad():
+            for batch_idx, batch in enumerate(prog_iter_test):
+                input_x, input_y = tuple(t.to(device) for t in batch)
+                pred = model(input_x)
+                all_pred_prob.append(pred.cpu().data.numpy())
         all_pred_prob = np.concatenate(all_pred_prob)
         all_pred = np.argmax(all_pred_prob, axis=1)
         ## vote most common
@@ -117,8 +122,3 @@ if __name__ == "__main__":
         writer.add_scalar('F1/label_1', tmp_report['1']['f1-score'], _)
         writer.add_scalar('F1/label_2', tmp_report['2']['f1-score'], _)
         writer.add_scalar('F1/label_3', tmp_report['3']['f1-score'], _)
-
-     
-    
-    
-    
