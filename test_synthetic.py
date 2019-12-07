@@ -18,25 +18,42 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+from torchsummary import summary
 
     
 if __name__ == "__main__":
     
     # make data
     n_samples = 1000
-    n_length = 1000
-    n_channel = 3
-    n_classes = 3    
+    n_length = 2048
+    n_channel = 18
+    n_classes = 6
     data, label = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
     print(data.shape, Counter(label))
     dataset = MyDataset(data, label)
     dataloader = DataLoader(dataset, batch_size=64)
     
     # make model
-    device = torch.device('cuda:4' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     ## change the hyper-parameters for your own data
-    model = ResNet1D(in_channels=n_channel, base_filters=64, kernel_size=16, stride=3, n_block=10, n_classes=n_classes, verbose=False)
+    # (n_block, downsample_gap, increasefilter_gap) = (8, 1, 2)
+    # 34 layer (16*2+2): 16, 2, 4
+    # 98 layer (48*2+2): 48, 6, 12
+    model = ResNet1D(
+        in_channels=n_channel, 
+        base_filters=128, 
+        kernel_size=16, 
+        stride=2, 
+        n_block=48, 
+        groups=32,
+        n_classes=n_classes, 
+        downsample_gap=6, 
+        increasefilter_gap=12, 
+        verbose=False)
     model.to(device)
+    summary(model, (data.shape[1], data.shape[2]))
+    exit()
+
 
     # train
     optimizer = optim.Adam(model.parameters(), lr=1e-3)

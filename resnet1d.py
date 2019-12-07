@@ -192,7 +192,7 @@ class ResNet1D(nn.Module):
         
     """
 
-    def __init__(self, in_channels, base_filters, kernel_size, stride, groups, n_block, n_classes, use_bn=True, use_do=True, verbose=False):
+    def __init__(self, in_channels, base_filters, kernel_size, stride, groups, n_block, n_classes, downsample_gap=2, increasefilter_gap=4, use_bn=True, use_do=True, verbose=False):
         super(ResNet1D, self).__init__()
         
         self.verbose = verbose
@@ -202,6 +202,9 @@ class ResNet1D(nn.Module):
         self.groups = groups
         self.use_bn = use_bn
         self.use_do = use_do
+
+        self.downsample_gap = downsample_gap # 2 for base model
+        self.increasefilter_gap = increasefilter_gap # 4 for base model
 
         # first block
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
@@ -217,8 +220,8 @@ class ResNet1D(nn.Module):
                 is_first_block = True
             else:
                 is_first_block = False
-            # downsample
-            if i_block % 2 == 1:
+            # downsample at every self.downsample_gap blocks
+            if i_block % self.downsample_gap == 1:
                 downsample = True
             else:
                 downsample = False
@@ -227,8 +230,9 @@ class ResNet1D(nn.Module):
                 in_channels = base_filters
                 out_channels = in_channels
             else:
-                in_channels = int(base_filters*2**((i_block-1)//4))
-                if (i_block % 4 == 0) and (i_block != 0):
+                # increase filters at every self.increasefilter_gap blocks
+                in_channels = int(base_filters*2**((i_block-1)//self.increasefilter_gap))
+                if (i_block % self.increasefilter_gap == 0) and (i_block != 0):
                     out_channels = in_channels * 2
                 else:
                     out_channels = in_channels
@@ -248,7 +252,7 @@ class ResNet1D(nn.Module):
         # final prediction
         self.final_bn = nn.BatchNorm1d(out_channels)
         self.final_relu = nn.ReLU(inplace=True)
-        self.do = nn.Dropout(p=0.5)
+        # self.do = nn.Dropout(p=0.5)
         self.dense = nn.Linear(out_channels, n_classes)
         # self.softmax = nn.Softmax(dim=1)
         
@@ -282,7 +286,7 @@ class ResNet1D(nn.Module):
         out = out.mean(-1)
         if self.verbose:
             print('final pooling', out.shape)
-        out = self.do(out)
+        # out = self.do(out)
         out = self.dense(out)
         if self.verbose:
             print('dense', out.shape)
