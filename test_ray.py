@@ -1,8 +1,14 @@
 """
 train and test resnet1d on synthetic data, using ray
 
-for the usage of Ray, please refer to: 
-https://ray.readthedocs.io/en/latest/using-ray-with-pytorch.html
+Usage: 
+    (1) Install Ray:
+        pip install ray --user
+    (2) Run test on synthetic data
+        python test_ray.py
+
+    for the usage of Ray for PyTorch, please refer to: 
+    https://ray.readthedocs.io/en/latest/using-ray-with-pytorch.html
 
 Shenda Hong, Dec 2019
 """
