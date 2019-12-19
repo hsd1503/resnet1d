@@ -1,31 +1,37 @@
 # Introduction
 
-This is a pytorch implementation of ResNet [0] and ResNeXt [1] on one-dimensional data classification. 
+This is a PyTorch implementation of ResNet [0] and ResNeXt [1] on one-dimensional data classification, with applications on ECG Classification. 
 
 # Usage
 
 ```
-# test on synthetic data
+# test on synthetic data, no data download required
 python test_synthetic.py
 
-# test on PhysioNet/CinC Challenge 2017 data
+# test on PhysioNet/CinC Challenge 2017 data, need prepare data first
+# Please see comment in code for details
 python test_physionet.py
+
+# training or serving model with Ray [5], need install Ray first: https://github.com/ray-project/ray
+# Please see comment in code for details
+python test_ray.py
 ```
+
+model_detail/ shows model architectures
 
 # Requirements
 
-python 3.7.5, pytorch 1.2.0
+Required: Python 3.7.5, PyTorch 1.2.0, torchsummary
 
+Optional: Ray 0.8.0
 
-# Applications
-
-## ECG Classification (PhysioNet/CinC Challenge 2017)
+# Applications: ECG Classification (PhysioNet/CinC Challenge 2017)
 
 Dataset: "AF Classification from a short single lead ECG recording". Data can be found at https://archive.physionet.org/challenge/2017/#challenge-data Please use Revised labels (v3) at https://archive.physionet.org/challenge/2017/REFERENCE-v3.csv
 
-The model has been used in one of the First place solution (F1=0.83) [2, 3]. The original tensorflow (tflearn) version can be found at https://github.com/hsd1503/ENCASE. 
+This repository also contains data preprocessing code, please see util.py for details.
 
-
+The model has been used in our previous work [2,3] for deep feature extraction, which won one of the First place (F1=0.83) of this Challenge. The original tensorflow (tflearn) version can be found at https://github.com/hsd1503/ENCASE (If you use this code in your work, please cite our papers). 
 
 # References
 
@@ -38,3 +44,5 @@ The model has been used in one of the First place solution (F1=0.83) [2, 3]. The
 [3] Shenda Hong, Yuxi Zhou, Meng Wu, Qingyun Wang, Junyuan Shang, Hongyan Li and Junqing Xie. Combining Deep Neural Networks and Engineered Features for Cardiac Arrhythmia Detection from ECG Recordings. Physiological Measurement 2019 [paper](https://www.ncbi.nlm.nih.gov/pubmed/30943458)
 
 [4] Yuxi Zhou, Shenda Hong, Meng Wu, Junyuan Shang, Qingyun Wang, Junqing Xie, Hongyan Li. K-margin-based Residual-convolution-recurrent Neural Network for Atrial Fibrillation Detection. International Joint Conference on Artificial Intelligence (IJCAI) 2019 [paper](https://www.ijcai.org/proceedings/2019/0839.pdf)
+
+[5] Philipp Moritz, Robert Nishihara, Stephanie Wang, Alexey Tumanov, Richard Liaw, Eric Liang, Melih Elibol, Zongheng Yang, William Paul, Michael I. Jordan, Ion Stoica: Ray: A Distributed Framework for Emerging AI Applications. OSDI 2018: 561-577
