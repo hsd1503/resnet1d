@@ -4,7 +4,7 @@ train and test resnet1d on synthetic data, using ray
 for the usage of Ray, please refer to: 
 https://ray.readthedocs.io/en/latest/using-ray-with-pytorch.html
 
-Shenda Hong, Oct 2019
+Shenda Hong, Dec 2019
 """
 
 import numpy as np
