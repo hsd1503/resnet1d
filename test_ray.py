@@ -76,17 +76,18 @@ class Network(object):
         n_length = n_length
         n_channel = 1
         n_classes = 2
+        batch_size = 64
 
         data, label = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
         print(data.shape, Counter(label))
         dataset = MyDataset(data, label)
-        dataloader = DataLoader(dataset, batch_size=64)
+        dataloader = DataLoader(dataset, batch_size=batch_size)
 
         data_test, label_test = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
         self.label_test = label_test
         print(data_test.shape, Counter(label_test))
         dataset_test = MyDataset(data_test, label_test)
-        dataloader_test = DataLoader(dataset_test, batch_size=64, drop_last=False)
+        dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
         
         self.device = device = torch.device("cuda" if use_cuda else "cpu")
         self.train_loader, self.test_loader = dataloader, dataloader_test
@@ -112,6 +113,9 @@ class Network(object):
         train(self.model, self.device, self.train_loader, self.optimizer)
         return test(self.model, self.device, self.test_loader, self.label_test)
 
+    def test(self):
+        return test(self.model, self.device, self.test_loader, self.label_test)
+
     def get_weights(self):
         return self.model.state_dict()
 
@@ -121,6 +125,8 @@ class Network(object):
     def save(self):
         torch.save(self.model.state_dict(), "synthetic_ray.pt")
 
+    def load(self):
+        self.model.load_state_dict(torch.load("synthetic_ray.pt"))
 
 if __name__ == "__main__":
 
@@ -144,7 +150,10 @@ if __name__ == "__main__":
                         kernel_size=kernel_size, 
                         n_block=n_block)
                     net.model.to(device)
-                    summary(net.model, (data.shape[1], data.shape[2]))
+                    # summary(net.model, (data.shape[1], data.shape[2]))
+                    net.test()
+
+                    exit()
 
     # ------------------ test ray ------------------
     # ray.init()
