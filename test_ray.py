@@ -62,19 +62,20 @@ def test(model, device, test_loader, label_test):
     print(classification_report(all_pred, label_test))
 
 class Network(object):
-    def __init__(self, n_length, base_filters, kernel_size, n_block):
+    def __init__(self, n_length, base_filters, kernel_size, n_block, n_channel):
         """
         key parameters to control the model:
             n_length: dimention of input (resolution) [16, 64, 256, 1024, 4096]
             base_filters: number of convolutional filters (width) [8, 16, 32, 64, 128]
             kernel_size: size of convolutional filters [2, 4, 8, 16]
             n_block: depth of model (depth) [2, 4, 8, 16]
+
+        
         """
         use_cuda = torch.cuda.is_available()
 
         n_samples = 1000
         n_length = n_length
-        n_channel = 1
         n_classes = 2
         batch_size = 64
 
@@ -133,27 +134,36 @@ if __name__ == "__main__":
     # ------------------ test make model ------------------
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    for n_length in [16, 64, 256, 1024, 4096]:
-        data, label = read_data_generated(n_samples=1000, n_length=n_length, n_channel=1, n_classes=2)
-        for base_filters in [8, 16, 32, 64, 128]:
-            for kernel_size in [2, 4, 8, 16]:
-                for n_block in [2, 4, 8, 16]:
-                    print('\n'*3)
-                    print('*'*60)
-                    print('*'*60)
-                    print("n_length: {}, base_filters: {}, kernel_size: {}, n_block: {}".format(n_length, base_filters, kernel_size, n_block))
-                    print('*'*60)
-                    print('*'*60)
-                    net = Network(
-                        n_length=n_length, 
-                        base_filters=base_filters, 
-                        kernel_size=kernel_size, 
-                        n_block=n_block)
-                    net.model.to(device)
-                    # summary(net.model, (data.shape[1], data.shape[2]))
-                    net.test()
 
-                    exit()
+    # ECG
+    net = Network(
+        n_length=3750, 
+        base_filters=64, 
+        kernel_size=16, 
+        n_block=16, 
+        n_channel=1)
+    net.model.to(device)
+    net.test()
+
+    # vital
+    net = Network(
+        n_length=300, 
+        base_filters=64, 
+        kernel_size=16, 
+        n_block=8, 
+        n_channel=5)
+    net.model.to(device)
+    net.test()
+
+    # lab
+    net = Network(
+        n_length=48, 
+        base_filters=64, 
+        kernel_size=4, 
+        n_block=4, 
+        n_channel=13)
+    net.model.to(device)
+    net.test()
 
     # ------------------ test ray ------------------
     # ray.init()
