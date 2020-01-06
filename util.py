@@ -33,7 +33,7 @@ def preprocess_physionet():
     with open('../data/challenge2017/challenge2017.pkl', 'wb') as fout:
         pickle.dump(res, fout)
 
-def slide_and_cut(X, Y, window_size, stride, output_pid=False):
+def slide_and_cut(X, Y, window_size, stride, output_pid=False, n_class=4):
     out_X = []
     out_Y = []
     out_pid = []
@@ -45,7 +45,10 @@ def slide_and_cut(X, Y, window_size, stride, output_pid=False):
         if tmp_Y == 0:
             i_stride = stride
         elif tmp_Y == 1:
-            i_stride = stride//6 # use 10 for read_data_physionet_2
+            if n_class == 4:
+                i_stride = stride//6 # use 10 for read_data_physionet_2
+            elif n_class == 2:
+                i_stride = stride//10
         elif tmp_Y == 2:
             i_stride = stride//2
         elif tmp_Y == 3:
@@ -87,8 +90,8 @@ def read_data_physionet_2(window_size=3000, stride=500):
     # slide and cut
     print('before: ')
     print(Counter(Y_train), Counter(Y_test))
-    X_train, Y_train = slide_and_cut(X_train, Y_train, window_size=window_size, stride=stride)
-    X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, output_pid=True)
+    X_train, Y_train = slide_and_cut(X_train, Y_train, window_size=window_size, stride=stride, n_class=2)
+    X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, n_class=2, output_pid=True)
     print('after: ')
     print(Counter(Y_train), Counter(Y_test))
     
