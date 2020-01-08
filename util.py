@@ -11,6 +11,8 @@ def preprocess_physionet():
     """
     download the raw data from https://physionet.org/content/challenge-2017/1.0.0/, 
     and put it in ../data/challenge2017/
+
+    The preprocessed dataset challenge2017.pkl can also be found at https://drive.google.com/drive/folders/1AuPxvGoyUbKcVaFmeyt3xsqj6ucWZezf
     """
     
     # read label

@@ -8,7 +8,8 @@ This is a PyTorch implementation of ResNet [0] and ResNeXt [1] on one-dimensiona
 # test on synthetic data, no data download required
 python test_synthetic.py
 
-# test on PhysioNet/CinC Challenge 2017 data, need prepare data first
+# test on PhysioNet/CinC Challenge 2017 data
+# need prepare data first, or you can download my preprocessed dataset challenge2017.pkl from https://drive.google.com/drive/folders/1AuPxvGoyUbKcVaFmeyt3xsqj6ucWZezf
 # Please see comment in code for details
 python test_physionet.py
 
@@ -27,7 +28,7 @@ Optional: Ray 0.8.0
 
 # Applications: ECG Classification (PhysioNet/CinC Challenge 2017)
 
-Dataset: "AF Classification from a short single lead ECG recording". Data can be found at https://archive.physionet.org/challenge/2017/#challenge-data Please use Revised labels (v3) at https://archive.physionet.org/challenge/2017/REFERENCE-v3.csv
+Dataset: "AF Classification from a short single lead ECG recording". Data can be found at https://archive.physionet.org/challenge/2017/#challenge-data Please use Revised labels (v3) at https://archive.physionet.org/challenge/2017/REFERENCE-v3.csv , or you can download my preprocessed dataset challenge2017.pkl from https://drive.google.com/drive/folders/1AuPxvGoyUbKcVaFmeyt3xsqj6ucWZezf .
 
 This repository also contains data preprocessing code, please see util.py for details.
 
