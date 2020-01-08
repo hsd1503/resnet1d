@@ -65,6 +65,71 @@ def slide_and_cut(X, Y, window_size, stride, output_pid=False, datatype=4):
         return np.array(out_X), np.array(out_Y)
 
 
+def read_data_physionet_2_clean_federated(m_clients, test_ratio=0.2, window_size=3000, stride=500):
+    """
+    - only N A, no O P
+    - federated dataset, evenly cut the entire dataset into m_clients pieces
+    """
+
+    # read pkl
+    with open('../data/challenge2017/challenge2017.pkl', 'rb') as fin:
+        res = pickle.load(fin)
+    ## scale data
+    all_data = res['data']
+    for i in range(len(all_data)):
+        tmp_data = all_data[i]
+        tmp_std = np.std(tmp_data)
+        tmp_mean = np.mean(tmp_data)
+        all_data[i] = (tmp_data - tmp_mean) / tmp_std
+    all_data_raw = res['data']
+    all_data = []
+    ## encode label
+    all_label = []
+    for i in range(len(res['label'])):
+        if res['label'][i] == 'A':
+            all_label.append(1)
+            all_data.append(res['data'][i])
+        elif res['label'][i] == 'N':
+            all_label.append(0)
+            all_data.append(res['data'][i])
+    all_label = np.array(all_label)
+    all_data = np.array(all_data)
+
+    # split into m_clients
+    shuffle_pid = np.random.permutation(len(all_label))
+    m_clients_pid = np.array_split(shuffle_pid, m_clients)
+    all_label_list = [all_label[i] for i in m_clients_pid]
+    all_data_list = [all_data[i] for i in m_clients_pid]
+
+    out_data = []
+    for i in range(m_clients):
+        print('clinet {}'.format(i))
+        tmp_label = all_label_list[i]
+        tmp_data = all_data_list[i]
+
+        # split train test
+        X_train, X_test, Y_train, Y_test = train_test_split(tmp_data, tmp_label, test_size=test_ratio, random_state=0)
+        
+        # slide and cut
+        print('before: ')
+        print(Counter(Y_train), Counter(Y_test))
+        X_train, Y_train = slide_and_cut(X_train, Y_train, window_size=window_size, stride=stride, datatype=2.1)
+        X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, datatype=2.1, output_pid=True)
+        print('after: ')
+        print(Counter(Y_train), Counter(Y_test))
+        
+        # shuffle train
+        shuffle_pid = np.random.permutation(Y_train.shape[0])
+        X_train = X_train[shuffle_pid]
+        Y_train = Y_train[shuffle_pid]
+
+        X_train = np.expand_dims(X_train, 1)
+        X_test = np.expand_dims(X_test, 1)
+
+        out_data.append([X_train, X_test, Y_train, Y_test, pid_test])
+
+    return out_data
+
 def read_data_physionet_2_clean(window_size=3000, stride=500):
     """
     only N A, no O P
@@ -252,3 +317,7 @@ def read_data_generated(n_samples, n_length, n_channel, n_classes, verbose=False
             plt.title('Label: {0}'.format(all_Y[_]))
     
     return all_X, all_Y
+
+
+if __name__ == "__main__":
+    read_data_physionet_2_clean_federated(m_clients=4)

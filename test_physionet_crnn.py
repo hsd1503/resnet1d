@@ -1,7 +1,7 @@
 """
 test on physionet data
 
-Shenda Hong, Nov 2019
+Shenda Hong, Jan 2020
 """
 
 import numpy as np
