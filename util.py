@@ -33,7 +33,7 @@ def preprocess_physionet():
     with open('../data/challenge2017/challenge2017.pkl', 'wb') as fout:
         pickle.dump(res, fout)
 
-def slide_and_cut(X, Y, window_size, stride, output_pid=False, n_class=4):
+def slide_and_cut(X, Y, window_size, stride, output_pid=False, datatype=4):
     out_X = []
     out_Y = []
     out_pid = []
@@ -45,10 +45,12 @@ def slide_and_cut(X, Y, window_size, stride, output_pid=False, n_class=4):
         if tmp_Y == 0:
             i_stride = stride
         elif tmp_Y == 1:
-            if n_class == 4:
-                i_stride = stride//6 # use 10 for read_data_physionet_2
-            elif n_class == 2:
+            if datatype == 4:
+                i_stride = stride//6
+            elif datatype == 2:
                 i_stride = stride//10
+            elif datatype == 2.1:
+                i_stride = stride//7
         elif tmp_Y == 2:
             i_stride = stride//2
         elif tmp_Y == 3:
@@ -61,6 +63,57 @@ def slide_and_cut(X, Y, window_size, stride, output_pid=False, n_class=4):
         return np.array(out_X), np.array(out_Y), np.array(out_pid)
     else:
         return np.array(out_X), np.array(out_Y)
+
+
+def read_data_physionet_2_clean(window_size=3000, stride=500):
+    """
+    only N A, no O P
+    """
+
+    # read pkl
+    with open('../data/challenge2017/challenge2017.pkl', 'rb') as fin:
+        res = pickle.load(fin)
+    ## scale data
+    all_data = res['data']
+    for i in range(len(all_data)):
+        tmp_data = all_data[i]
+        tmp_std = np.std(tmp_data)
+        tmp_mean = np.mean(tmp_data)
+        all_data[i] = (tmp_data - tmp_mean) / tmp_std
+    all_data_raw = res['data']
+    all_data = []
+    ## encode label
+    all_label = []
+    for i in range(len(res['label'])):
+        if res['label'][i] == 'A':
+            all_label.append(1)
+            all_data.append(res['data'][i])
+        elif res['label'][i] == 'N':
+            all_label.append(0)
+            all_data.append(res['data'][i])
+    all_label = np.array(all_label)
+    all_data = np.array(all_data)
+
+    # split train test
+    X_train, X_test, Y_train, Y_test = train_test_split(all_data, all_label, test_size=0.1, random_state=0)
+    
+    # slide and cut
+    print('before: ')
+    print(Counter(Y_train), Counter(Y_test))
+    X_train, Y_train = slide_and_cut(X_train, Y_train, window_size=window_size, stride=stride, datatype=2.1)
+    X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, datatype=2.1, output_pid=True)
+    print('after: ')
+    print(Counter(Y_train), Counter(Y_test))
+    
+    # shuffle train
+    shuffle_pid = np.random.permutation(Y_train.shape[0])
+    X_train = X_train[shuffle_pid]
+    Y_train = Y_train[shuffle_pid]
+
+    X_train = np.expand_dims(X_train, 1)
+    X_test = np.expand_dims(X_test, 1)
+
+    return X_train, X_test, Y_train, Y_test, pid_test
 
 def read_data_physionet_2(window_size=3000, stride=500):
 
