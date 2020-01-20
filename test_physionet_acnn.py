@@ -11,8 +11,8 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 
-from util import read_data_physionet_2, read_data_physionet_2_clean, read_data_physionet_4, preprocess_physionet
-from crnn1d import CRNN, MyDataset
+from util import read_data_physionet_2_clean, read_data_physionet_2_clean_federated
+from acnn1d import ACNN, MyDataset
 
 import torch
 import torch.nn as nn
@@ -20,7 +20,6 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from tensorboardX import SummaryWriter
-from torchsummaryX import summary
 
 if __name__ == "__main__":
 
@@ -28,12 +27,12 @@ if __name__ == "__main__":
     
     batch_size = 128
     if is_debug:
-        writer = SummaryWriter('/nethome/shong375/log/crnn1d/challenge2017/debug')
+        writer = SummaryWriter('/nethome/shong375/log/acnn1d/challenge2017/debug')
     else:
-        writer = SummaryWriter('/nethome/shong375/log/crnn1d/challenge2017/new_novote_cleandata_rerunx')
+        writer = SummaryWriter('/nethome/shong375/log/acnn1d/challenge2017/new_novote_cleandata_rerunx')
 
     # make data
-    # preprocess_physionet() ## run this if you have no preprocessed data yet
+    print('start')
     X_train, X_test, Y_train, Y_test, pid_test = read_data_physionet_2_clean(window_size=3000, stride=500)
     print(X_train.shape, Y_train.shape)
     dataset = MyDataset(X_train, Y_train)
@@ -44,17 +43,23 @@ if __name__ == "__main__":
     # make model
     device_str = "cuda"
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
-    model = CRNN(
+    model = ACNN(
         in_channels=1, 
-        out_channels=16, 
+        out_channels=128, 
+        att_channels=16,
         n_len_seg=50, 
-        verbose=False,
+        verbose=True,
         n_classes=2,
         device=device)
-    
-    summary(model, torch.zeros(1, 1, 3000))
-
     model.to(device)
+
+    ## look model
+    prog_iter = tqdm(dataloader, desc="init", leave=False)
+    for batch_idx, batch in enumerate(prog_iter):
+        input_x, input_y = tuple(t.to(device) for t in batch)
+        pred = model(input_x)
+        break
+
     # train and test
     model.verbose = False
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-3)
@@ -100,10 +105,10 @@ if __name__ == "__main__":
         ## classification report
         tmp_report = classification_report(Y_test, all_pred, output_dict=True)
         print(confusion_matrix(Y_test, all_pred))
+        print(classification_report(Y_test, all_pred))
         f1_score = (tmp_report['0']['f1-score'] + tmp_report['1']['f1-score'])/2
         if f1_score > prev_f1:
-            print(_, f1_score)
-            # torch.save(model, 'models/crnn/crnn_{}_{:.4f}.pt'.format(_, f1_score))
+            torch.save(model, 'models/acnn/acnn_{}_{:.4f}.pt'.format(_, f1_score))
             prev_f1 = f1_score
         writer.add_scalar('F1/f1_score', f1_score, _)
         writer.add_scalar('F1/label_0', tmp_report['0']['f1-score'], _)
