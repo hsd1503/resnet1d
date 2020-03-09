@@ -87,12 +87,12 @@ class MyMaxPool1dPadSame(nn.Module):
         
         return net
     
-class Bottleneck(nn.Module):
+class BasicBlock(nn.Module):
     """
-    ResNet Bottleneck Block
+    ResNet Basic Block
     """
     def __init__(self, in_channels, out_channels, kernel_size, stride, groups, downsample, use_bn, use_do, is_first_block=False):
-        super(Bottleneck, self).__init__()
+        super(BasicBlock, self).__init__()
         
         self.in_channels = in_channels
         self.kernel_size = kernel_size
@@ -187,7 +187,7 @@ class ResNet1D(nn.Module):
         kernel_size: width of kernel
         stride: stride of kernel moving
         groups: set larget to 1 as ResNeXt
-        n_block: number of Bottleneck blocks
+        n_block: number of blocks
         n_classes: number of classes
         
     """
@@ -213,7 +213,7 @@ class ResNet1D(nn.Module):
         out_channels = base_filters
                 
         # residual blocks
-        self.bottleneck_list = nn.ModuleList()
+        self.basicblock_list = nn.ModuleList()
         for i_block in range(self.n_block):
             # is_first_block
             if i_block == 0:
@@ -237,7 +237,7 @@ class ResNet1D(nn.Module):
                 else:
                     out_channels = in_channels
             
-            tmp_block = Bottleneck(
+            tmp_block = BasicBlock(
                 in_channels=in_channels, 
                 out_channels=out_channels, 
                 kernel_size=self.kernel_size, 
@@ -247,7 +247,7 @@ class ResNet1D(nn.Module):
                 use_bn = self.use_bn, 
                 use_do = self.use_do, 
                 is_first_block=is_first_block)
-            self.bottleneck_list.append(tmp_block)
+            self.basicblock_list.append(tmp_block)
 
         # final prediction
         self.final_bn = nn.BatchNorm1d(out_channels)
@@ -270,9 +270,9 @@ class ResNet1D(nn.Module):
             out = self.first_block_bn(out)
         out = self.first_block_relu(out)
         
-        # residual blocks, every bottleneck has two conv
+        # residual blocks, every block has two conv
         for i_block in range(self.n_block):
-            net = self.bottleneck_list[i_block]
+            net = self.basicblock_list[i_block]
             if self.verbose:
                 print('i_block: {0}, in_channels: {1}, out_channels: {2}, downsample: {3}'.format(i_block, net.in_channels, net.out_channels, net.downsample))
             out = net(out)
