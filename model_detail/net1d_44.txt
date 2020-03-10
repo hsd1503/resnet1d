@@ -1,0 +1,321 @@
+before: 
+Counter({0: 4560, 2: 2178, 1: 685, 3: 252}) Counter({0: 516, 2: 237, 1: 73, 3: 27})
+after: 
+Counter({2: 63996, 0: 60846, 1: 56062, 3: 42865}) Counter({0: 6988, 2: 6641, 1: 5619, 3: 5348})
+(223769, 1, 3000) (223769,)
+stage: 0, block: 0, in_channels: 256, out_channels: 256, outshape: [2, 256, 750]
+stage: 0, block: 0, conv1: 256->256 k=1 s=1 C=1
+stage: 0, block: 0, convk: 256->256 k=16 s=2 C=32
+stage: 0, block: 0, conv1: 256->256 k=1 s=1 C=1
+stage: 0, block: 1, in_channels: 256, out_channels: 256, outshape: [2, 256, 750]
+stage: 0, block: 1, conv1: 256->256 k=1 s=1 C=1
+stage: 0, block: 1, convk: 256->256 k=16 s=1 C=32
+stage: 0, block: 1, conv1: 256->256 k=1 s=1 C=1
+stage: 1, block: 0, in_channels: 256, out_channels: 512, outshape: [2, 512, 375]
+stage: 1, block: 0, conv1: 256->512 k=1 s=1 C=1
+stage: 1, block: 0, convk: 512->512 k=16 s=2 C=32
+stage: 1, block: 0, conv1: 512->512 k=1 s=1 C=1
+stage: 1, block: 1, in_channels: 512, out_channels: 512, outshape: [2, 512, 375]
+stage: 1, block: 1, conv1: 512->512 k=1 s=1 C=1
+stage: 1, block: 1, convk: 512->512 k=16 s=1 C=32
+stage: 1, block: 1, conv1: 512->512 k=1 s=1 C=1
+stage: 2, block: 0, in_channels: 512, out_channels: 512, outshape: [2, 512, 188]
+stage: 2, block: 0, conv1: 512->512 k=1 s=1 C=1
+stage: 2, block: 0, convk: 512->512 k=16 s=2 C=32
+stage: 2, block: 0, conv1: 512->512 k=1 s=1 C=1
+stage: 2, block: 1, in_channels: 512, out_channels: 512, outshape: [2, 512, 188]
+stage: 2, block: 1, conv1: 512->512 k=1 s=1 C=1
+stage: 2, block: 1, convk: 512->512 k=16 s=1 C=32
+stage: 2, block: 1, conv1: 512->512 k=1 s=1 C=1
+stage: 3, block: 0, in_channels: 512, out_channels: 1024, outshape: [2, 1024, 94]
+stage: 3, block: 0, conv1: 512->1024 k=1 s=1 C=1
+stage: 3, block: 0, convk: 1024->1024 k=16 s=2 C=32
+stage: 3, block: 0, conv1: 1024->1024 k=1 s=1 C=1
+stage: 3, block: 1, in_channels: 1024, out_channels: 1024, outshape: [2, 1024, 94]
+stage: 3, block: 1, conv1: 1024->1024 k=1 s=1 C=1
+stage: 3, block: 1, convk: 1024->1024 k=16 s=1 C=32
+stage: 3, block: 1, conv1: 1024->1024 k=1 s=1 C=1
+stage: 4, block: 0, in_channels: 1024, out_channels: 1024, outshape: [2, 1024, 47]
+stage: 4, block: 0, conv1: 1024->1024 k=1 s=1 C=1
+stage: 4, block: 0, convk: 1024->1024 k=16 s=2 C=32
+stage: 4, block: 0, conv1: 1024->1024 k=1 s=1 C=1
+stage: 4, block: 1, in_channels: 1024, out_channels: 1024, outshape: [2, 1024, 47]
+stage: 4, block: 1, conv1: 1024->1024 k=1 s=1 C=1
+stage: 4, block: 1, convk: 1024->1024 k=16 s=1 C=32
+stage: 4, block: 1, conv1: 1024->1024 k=1 s=1 C=1
+stage: 5, block: 0, in_channels: 1024, out_channels: 2048, outshape: [2, 2048, 24]
+stage: 5, block: 0, conv1: 1024->2048 k=1 s=1 C=1
+stage: 5, block: 0, convk: 2048->2048 k=16 s=2 C=32
+stage: 5, block: 0, conv1: 2048->2048 k=1 s=1 C=1
+stage: 5, block: 1, in_channels: 2048, out_channels: 2048, outshape: [2, 2048, 24]
+stage: 5, block: 1, conv1: 2048->2048 k=1 s=1 C=1
+stage: 5, block: 1, convk: 2048->2048 k=16 s=1 C=32
+stage: 5, block: 1, conv1: 2048->2048 k=1 s=1 C=1
+stage: 6, block: 0, in_channels: 2048, out_channels: 2048, outshape: [2, 2048, 12]
+stage: 6, block: 0, conv1: 2048->2048 k=1 s=1 C=1
+stage: 6, block: 0, convk: 2048->2048 k=16 s=2 C=32
+stage: 6, block: 0, conv1: 2048->2048 k=1 s=1 C=1
+stage: 6, block: 1, in_channels: 2048, out_channels: 2048, outshape: [2, 2048, 12]
+stage: 6, block: 1, conv1: 2048->2048 k=1 s=1 C=1
+stage: 6, block: 1, convk: 2048->2048 k=16 s=1 C=32
+stage: 6, block: 1, conv1: 2048->2048 k=1 s=1 C=1
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv1d-1            [-1, 256, 1500]           4,352
+   MyConv1dPadSame-2            [-1, 256, 1500]               0
+       BatchNorm1d-3            [-1, 256, 1500]             512
+              ReLU-4            [-1, 256, 1500]               0
+            Conv1d-5            [-1, 256, 1500]          65,792
+   MyConv1dPadSame-6            [-1, 256, 1500]               0
+       BatchNorm1d-7            [-1, 256, 1500]             512
+              ReLU-8            [-1, 256, 1500]               0
+           Dropout-9            [-1, 256, 1500]               0
+           Conv1d-10             [-1, 256, 750]          33,024
+  MyConv1dPadSame-11             [-1, 256, 750]               0
+      BatchNorm1d-12             [-1, 256, 750]             512
+             ReLU-13             [-1, 256, 750]               0
+          Dropout-14             [-1, 256, 750]               0
+           Conv1d-15             [-1, 256, 750]          65,792
+  MyConv1dPadSame-16             [-1, 256, 750]               0
+        MaxPool1d-17             [-1, 256, 750]               0
+MyMaxPool1dPadSame-18             [-1, 256, 750]               0
+       BasicBlock-19             [-1, 256, 750]               0
+      BatchNorm1d-20             [-1, 256, 750]             512
+             ReLU-21             [-1, 256, 750]               0
+          Dropout-22             [-1, 256, 750]               0
+           Conv1d-23             [-1, 256, 750]          65,792
+  MyConv1dPadSame-24             [-1, 256, 750]               0
+      BatchNorm1d-25             [-1, 256, 750]             512
+             ReLU-26             [-1, 256, 750]               0
+          Dropout-27             [-1, 256, 750]               0
+           Conv1d-28             [-1, 256, 750]          33,024
+  MyConv1dPadSame-29             [-1, 256, 750]               0
+      BatchNorm1d-30             [-1, 256, 750]             512
+             ReLU-31             [-1, 256, 750]               0
+          Dropout-32             [-1, 256, 750]               0
+           Conv1d-33             [-1, 256, 750]          65,792
+  MyConv1dPadSame-34             [-1, 256, 750]               0
+       BasicBlock-35             [-1, 256, 750]               0
+       BasicStage-36             [-1, 256, 750]               0
+      BatchNorm1d-37             [-1, 256, 750]             512
+             ReLU-38             [-1, 256, 750]               0
+          Dropout-39             [-1, 256, 750]               0
+           Conv1d-40             [-1, 512, 750]         131,584
+  MyConv1dPadSame-41             [-1, 512, 750]               0
+      BatchNorm1d-42             [-1, 512, 750]           1,024
+             ReLU-43             [-1, 512, 750]               0
+          Dropout-44             [-1, 512, 750]               0
+           Conv1d-45             [-1, 512, 375]         131,584
+  MyConv1dPadSame-46             [-1, 512, 375]               0
+      BatchNorm1d-47             [-1, 512, 375]           1,024
+             ReLU-48             [-1, 512, 375]               0
+          Dropout-49             [-1, 512, 375]               0
+           Conv1d-50             [-1, 512, 375]         262,656
+  MyConv1dPadSame-51             [-1, 512, 375]               0
+        MaxPool1d-52             [-1, 256, 375]               0
+MyMaxPool1dPadSame-53             [-1, 256, 375]               0
+       BasicBlock-54             [-1, 512, 375]               0
+      BatchNorm1d-55             [-1, 512, 375]           1,024
+             ReLU-56             [-1, 512, 375]               0
+          Dropout-57             [-1, 512, 375]               0
+           Conv1d-58             [-1, 512, 375]         262,656
+  MyConv1dPadSame-59             [-1, 512, 375]               0
+      BatchNorm1d-60             [-1, 512, 375]           1,024
+             ReLU-61             [-1, 512, 375]               0
+          Dropout-62             [-1, 512, 375]               0
+           Conv1d-63             [-1, 512, 375]         131,584
+  MyConv1dPadSame-64             [-1, 512, 375]               0
+      BatchNorm1d-65             [-1, 512, 375]           1,024
+             ReLU-66             [-1, 512, 375]               0
+          Dropout-67             [-1, 512, 375]               0
+           Conv1d-68             [-1, 512, 375]         262,656
+  MyConv1dPadSame-69             [-1, 512, 375]               0
+       BasicBlock-70             [-1, 512, 375]               0
+       BasicStage-71             [-1, 512, 375]               0
+      BatchNorm1d-72             [-1, 512, 375]           1,024
+             ReLU-73             [-1, 512, 375]               0
+          Dropout-74             [-1, 512, 375]               0
+           Conv1d-75             [-1, 512, 375]         262,656
+  MyConv1dPadSame-76             [-1, 512, 375]               0
+      BatchNorm1d-77             [-1, 512, 375]           1,024
+             ReLU-78             [-1, 512, 375]               0
+          Dropout-79             [-1, 512, 375]               0
+           Conv1d-80             [-1, 512, 188]         131,584
+  MyConv1dPadSame-81             [-1, 512, 188]               0
+      BatchNorm1d-82             [-1, 512, 188]           1,024
+             ReLU-83             [-1, 512, 188]               0
+          Dropout-84             [-1, 512, 188]               0
+           Conv1d-85             [-1, 512, 188]         262,656
+  MyConv1dPadSame-86             [-1, 512, 188]               0
+        MaxPool1d-87             [-1, 512, 188]               0
+MyMaxPool1dPadSame-88             [-1, 512, 188]               0
+       BasicBlock-89             [-1, 512, 188]               0
+      BatchNorm1d-90             [-1, 512, 188]           1,024
+             ReLU-91             [-1, 512, 188]               0
+          Dropout-92             [-1, 512, 188]               0
+           Conv1d-93             [-1, 512, 188]         262,656
+  MyConv1dPadSame-94             [-1, 512, 188]               0
+      BatchNorm1d-95             [-1, 512, 188]           1,024
+             ReLU-96             [-1, 512, 188]               0
+          Dropout-97             [-1, 512, 188]               0
+           Conv1d-98             [-1, 512, 188]         131,584
+  MyConv1dPadSame-99             [-1, 512, 188]               0
+     BatchNorm1d-100             [-1, 512, 188]           1,024
+            ReLU-101             [-1, 512, 188]               0
+         Dropout-102             [-1, 512, 188]               0
+          Conv1d-103             [-1, 512, 188]         262,656
+ MyConv1dPadSame-104             [-1, 512, 188]               0
+      BasicBlock-105             [-1, 512, 188]               0
+      BasicStage-106             [-1, 512, 188]               0
+     BatchNorm1d-107             [-1, 512, 188]           1,024
+            ReLU-108             [-1, 512, 188]               0
+         Dropout-109             [-1, 512, 188]               0
+          Conv1d-110            [-1, 1024, 188]         525,312
+ MyConv1dPadSame-111            [-1, 1024, 188]               0
+     BatchNorm1d-112            [-1, 1024, 188]           2,048
+            ReLU-113            [-1, 1024, 188]               0
+         Dropout-114            [-1, 1024, 188]               0
+          Conv1d-115             [-1, 1024, 94]         525,312
+ MyConv1dPadSame-116             [-1, 1024, 94]               0
+     BatchNorm1d-117             [-1, 1024, 94]           2,048
+            ReLU-118             [-1, 1024, 94]               0
+         Dropout-119             [-1, 1024, 94]               0
+          Conv1d-120             [-1, 1024, 94]       1,049,600
+ MyConv1dPadSame-121             [-1, 1024, 94]               0
+       MaxPool1d-122              [-1, 512, 94]               0
+MyMaxPool1dPadSame-123              [-1, 512, 94]               0
+      BasicBlock-124             [-1, 1024, 94]               0
+     BatchNorm1d-125             [-1, 1024, 94]           2,048
+            ReLU-126             [-1, 1024, 94]               0
+         Dropout-127             [-1, 1024, 94]               0
+          Conv1d-128             [-1, 1024, 94]       1,049,600
+ MyConv1dPadSame-129             [-1, 1024, 94]               0
+     BatchNorm1d-130             [-1, 1024, 94]           2,048
+            ReLU-131             [-1, 1024, 94]               0
+         Dropout-132             [-1, 1024, 94]               0
+          Conv1d-133             [-1, 1024, 94]         525,312
+ MyConv1dPadSame-134             [-1, 1024, 94]               0
+     BatchNorm1d-135             [-1, 1024, 94]           2,048
+            ReLU-136             [-1, 1024, 94]               0
+         Dropout-137             [-1, 1024, 94]               0
+          Conv1d-138             [-1, 1024, 94]       1,049,600
+ MyConv1dPadSame-139             [-1, 1024, 94]               0
+      BasicBlock-140             [-1, 1024, 94]               0
+      BasicStage-141             [-1, 1024, 94]               0
+     BatchNorm1d-142             [-1, 1024, 94]           2,048
+            ReLU-143             [-1, 1024, 94]               0
+         Dropout-144             [-1, 1024, 94]               0
+          Conv1d-145             [-1, 1024, 94]       1,049,600
+ MyConv1dPadSame-146             [-1, 1024, 94]               0
+     BatchNorm1d-147             [-1, 1024, 94]           2,048
+            ReLU-148             [-1, 1024, 94]               0
+         Dropout-149             [-1, 1024, 94]               0
+          Conv1d-150             [-1, 1024, 47]         525,312
+ MyConv1dPadSame-151             [-1, 1024, 47]               0
+     BatchNorm1d-152             [-1, 1024, 47]           2,048
+            ReLU-153             [-1, 1024, 47]               0
+         Dropout-154             [-1, 1024, 47]               0
+          Conv1d-155             [-1, 1024, 47]       1,049,600
+ MyConv1dPadSame-156             [-1, 1024, 47]               0
+       MaxPool1d-157             [-1, 1024, 47]               0
+MyMaxPool1dPadSame-158             [-1, 1024, 47]               0
+      BasicBlock-159             [-1, 1024, 47]               0
+     BatchNorm1d-160             [-1, 1024, 47]           2,048
+            ReLU-161             [-1, 1024, 47]               0
+         Dropout-162             [-1, 1024, 47]               0
+          Conv1d-163             [-1, 1024, 47]       1,049,600
+ MyConv1dPadSame-164             [-1, 1024, 47]               0
+     BatchNorm1d-165             [-1, 1024, 47]           2,048
+            ReLU-166             [-1, 1024, 47]               0
+         Dropout-167             [-1, 1024, 47]               0
+          Conv1d-168             [-1, 1024, 47]         525,312
+ MyConv1dPadSame-169             [-1, 1024, 47]               0
+     BatchNorm1d-170             [-1, 1024, 47]           2,048
+            ReLU-171             [-1, 1024, 47]               0
+         Dropout-172             [-1, 1024, 47]               0
+          Conv1d-173             [-1, 1024, 47]       1,049,600
+ MyConv1dPadSame-174             [-1, 1024, 47]               0
+      BasicBlock-175             [-1, 1024, 47]               0
+      BasicStage-176             [-1, 1024, 47]               0
+     BatchNorm1d-177             [-1, 1024, 47]           2,048
+            ReLU-178             [-1, 1024, 47]               0
+         Dropout-179             [-1, 1024, 47]               0
+          Conv1d-180             [-1, 2048, 47]       2,099,200
+ MyConv1dPadSame-181             [-1, 2048, 47]               0
+     BatchNorm1d-182             [-1, 2048, 47]           4,096
+            ReLU-183             [-1, 2048, 47]               0
+         Dropout-184             [-1, 2048, 47]               0
+          Conv1d-185             [-1, 2048, 24]       2,099,200
+ MyConv1dPadSame-186             [-1, 2048, 24]               0
+     BatchNorm1d-187             [-1, 2048, 24]           4,096
+            ReLU-188             [-1, 2048, 24]               0
+         Dropout-189             [-1, 2048, 24]               0
+          Conv1d-190             [-1, 2048, 24]       4,196,352
+ MyConv1dPadSame-191             [-1, 2048, 24]               0
+       MaxPool1d-192             [-1, 1024, 24]               0
+MyMaxPool1dPadSame-193             [-1, 1024, 24]               0
+      BasicBlock-194             [-1, 2048, 24]               0
+     BatchNorm1d-195             [-1, 2048, 24]           4,096
+            ReLU-196             [-1, 2048, 24]               0
+         Dropout-197             [-1, 2048, 24]               0
+          Conv1d-198             [-1, 2048, 24]       4,196,352
+ MyConv1dPadSame-199             [-1, 2048, 24]               0
+     BatchNorm1d-200             [-1, 2048, 24]           4,096
+            ReLU-201             [-1, 2048, 24]               0
+         Dropout-202             [-1, 2048, 24]               0
+          Conv1d-203             [-1, 2048, 24]       2,099,200
+ MyConv1dPadSame-204             [-1, 2048, 24]               0
+     BatchNorm1d-205             [-1, 2048, 24]           4,096
+            ReLU-206             [-1, 2048, 24]               0
+         Dropout-207             [-1, 2048, 24]               0
+          Conv1d-208             [-1, 2048, 24]       4,196,352
+ MyConv1dPadSame-209             [-1, 2048, 24]               0
+      BasicBlock-210             [-1, 2048, 24]               0
+      BasicStage-211             [-1, 2048, 24]               0
+     BatchNorm1d-212             [-1, 2048, 24]           4,096
+            ReLU-213             [-1, 2048, 24]               0
+         Dropout-214             [-1, 2048, 24]               0
+          Conv1d-215             [-1, 2048, 24]       4,196,352
+ MyConv1dPadSame-216             [-1, 2048, 24]               0
+     BatchNorm1d-217             [-1, 2048, 24]           4,096
+            ReLU-218             [-1, 2048, 24]               0
+         Dropout-219             [-1, 2048, 24]               0
+          Conv1d-220             [-1, 2048, 12]       2,099,200
+ MyConv1dPadSame-221             [-1, 2048, 12]               0
+     BatchNorm1d-222             [-1, 2048, 12]           4,096
+            ReLU-223             [-1, 2048, 12]               0
+         Dropout-224             [-1, 2048, 12]               0
+          Conv1d-225             [-1, 2048, 12]       4,196,352
+ MyConv1dPadSame-226             [-1, 2048, 12]               0
+       MaxPool1d-227             [-1, 2048, 12]               0
+MyMaxPool1dPadSame-228             [-1, 2048, 12]               0
+      BasicBlock-229             [-1, 2048, 12]               0
+     BatchNorm1d-230             [-1, 2048, 12]           4,096
+            ReLU-231             [-1, 2048, 12]               0
+         Dropout-232             [-1, 2048, 12]               0
+          Conv1d-233             [-1, 2048, 12]       4,196,352
+ MyConv1dPadSame-234             [-1, 2048, 12]               0
+     BatchNorm1d-235             [-1, 2048, 12]           4,096
+            ReLU-236             [-1, 2048, 12]               0
+         Dropout-237             [-1, 2048, 12]               0
+          Conv1d-238             [-1, 2048, 12]       2,099,200
+ MyConv1dPadSame-239             [-1, 2048, 12]               0
+     BatchNorm1d-240             [-1, 2048, 12]           4,096
+            ReLU-241             [-1, 2048, 12]               0
+         Dropout-242             [-1, 2048, 12]               0
+          Conv1d-243             [-1, 2048, 12]       4,196,352
+ MyConv1dPadSame-244             [-1, 2048, 12]               0
+      BasicBlock-245             [-1, 2048, 12]               0
+      BasicStage-246             [-1, 2048, 12]               0
+          Linear-247                    [-1, 4]           8,196
+================================================================
+Total params: 52,768,004
+Trainable params: 52,768,004
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.01
+Forward/backward pass size (MB): 221.61
+Params size (MB): 201.29
+Estimated Total Size (MB): 422.91
+----------------------------------------------------------------
