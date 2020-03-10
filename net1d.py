@@ -12,6 +12,18 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import Dataset
+
+class MyDataset(Dataset):
+    def __init__(self, data, label):
+        self.data = data
+        self.label = label
+
+    def __getitem__(self, index):
+        return (torch.tensor(self.data[index], dtype=torch.float), torch.tensor(self.label[index], dtype=torch.long))
+
+    def __len__(self):
+        return len(self.data)
 
 class MyConv1dPadSame(nn.Module):
     """
@@ -106,12 +118,13 @@ class BasicBlock(nn.Module):
         self.ratio = ratio
         self.kernel_size = kernel_size
         self.groups = groups
-        self.stride = stride if downsample else 1
+        self.downsample = downsample
+        self.stride = stride if self.downsample else 1
         self.is_first_block = is_first_block
         self.use_bn = use_bn
         self.use_do = use_do
 
-        self.middle_channels = self.out_channels * self.ratio
+        self.middle_channels = int(self.out_channels * self.ratio)
 
         # the first conv, conv1
         self.bn1 = nn.BatchNorm1d(in_channels)
@@ -201,13 +214,15 @@ class BasicStage(nn.Module):
     Basic Stage:
         block_1 -> block_2 -> ... -> block_M
     """
-    def __init__(self, in_channels, out_channels, kernel_size, stride, groups, i_stage, m_blocks, use_bn=True, use_do=True, verbose=False):
+    def __init__(self, in_channels, out_channels, ratio, kernel_size, stride, groups, i_stage, m_blocks, use_bn=True, use_do=True, verbose=False):
         super(BasicStage, self).__init__()
         
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.ratio = ratio
         self.kernel_size = kernel_size
         self.groups = groups
+        self.i_stage = i_stage
         self.m_blocks = m_blocks
         self.use_bn = use_bn
         self.use_do = use_do
@@ -216,7 +231,7 @@ class BasicStage(nn.Module):
         self.block_list = nn.ModuleList()
         for i_block in range(self.m_blocks):
             # first block
-            if i_stage == 0 and i_block == 0:
+            if self.i_stage == 0 and i_block == 0:
                 self.is_first_block = True
             else:
                 self.is_first_block = False
@@ -234,6 +249,7 @@ class BasicStage(nn.Module):
             tmp_block = BasicBlock(
                 in_channels=self.tmp_in_channels, 
                 out_channels=self.out_channels, 
+                ratio=self.ratio, 
                 kernel_size=self.kernel_size, 
                 stride=self.stride, 
                 groups=self.groups, 
@@ -251,7 +267,9 @@ class BasicStage(nn.Module):
             net = self.block_list[i_block]
             out = net(out)
             if self.verbose:
-                print('i_stage: {}, i_block: {}, in_channels: {}, out_channels: {}, outshape: {}'.format(i_stage, i_block, net.in_channels, net.out_channels, out.shape))
+                print('i_stage: {}, i_block: {}, in_channels: {}, out_channels: {}, outshape: {}'.format(self.i_stage, i_block, net.in_channels, net.out_channels, out.shape))
+
+        return out
 
 class Net1D(nn.Module):
     """
@@ -264,26 +282,41 @@ class Net1D(nn.Module):
         out: (n_samples)
         
     params:
-        
+        in_channels
+        base_filters
+        filter_mul_list: list, multiplier of base_filters for each stage
+        m_blocks_list: list, number of blocks of each stage
+        kernel_size
+        stride
+        groups
+        n_stages
+        n_classes
+        use_bn
+        use_do
+
     """
 
-    def __init__(self, config, verbose=False):
-        super(ResNet1D, self).__init__()
+    def __init__(self, in_channels, base_filters, ratio, filter_mul_list, m_blocks_list, kernel_size, stride, groups, n_classes, use_bn=True, use_do=True, verbose=False):
+        super(Net1D, self).__init__()
         
-        self.in_channels = config['in_channels']
-        self.base_filters = config['base_filters']
-        self.kernel_size = config['kernel_size']
-        self.stride = config['stride']
-        self.groups = config['groups']
-        self.n_classes = config['n_classes']
-        self.use_bn = config['use_bn']
-        self.use_do = config['use_do']
+        self.in_channels = in_channels
+        self.base_filters = base_filters
+        self.ratio = ratio
+        self.filter_mul_list = filter_mul_list
+        self.m_blocks_list = m_blocks_list
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.groups = groups
+        self.n_stages = len(filter_mul_list)
+        self.n_classes = n_classes
+        self.use_bn = use_bn
+        self.use_do = use_do
         self.verbose = verbose
 
         # first conv
         self.first_conv = MyConv1dPadSame(
             in_channels=in_channels, 
-            out_channels=base_filters, 
+            out_channels=self.base_filters, 
             kernel_size=self.kernel_size, 
             stride=2)
         self.first_bn = nn.BatchNorm1d(base_filters)
@@ -291,38 +324,45 @@ class Net1D(nn.Module):
 
         # stages
         self.stage_list = nn.ModuleList()
-        for i_stage in range(self.n_block):
-            tmp_block = BasicBlock(
+        in_channels = self.base_filters
+        for i_stage in range(self.n_stages):
+            out_channels = self.base_filters * self.filter_mul_list[i_stage]
+            m_blocks = self.m_blocks_list[i_stage]
+            tmp_stage = BasicStage(
                 in_channels=in_channels, 
                 out_channels=out_channels, 
+                ratio=self.ratio, 
                 kernel_size=self.kernel_size, 
-                stride = self.stride, 
-                groups = self.groups, 
-                downsample=downsample, 
-                use_bn = self.use_bn, 
-                use_do = self.use_do)
-            self.basicblock_list.append(tmp_block)
+                stride=self.stride, 
+                groups=self.groups, 
+                i_stage=i_stage,
+                m_blocks=m_blocks, 
+                use_bn=self.use_bn, 
+                use_do=self.use_do, 
+                verbose=self.verbose)
+            self.stage_list.append(tmp_stage)
+            in_channels = out_channels
 
         # final prediction
-        self.dense = nn.Linear(out_channels, n_classes)
+        self.dense = nn.Linear(in_channels, n_classes)
         
     def forward(self, x):
         
         out = x
         
         # first conv
-        out = self.first_block_conv(out)
+        out = self.first_conv(out)
         if self.use_bn:
-            out = self.first_block_bn(out)
-        out = self.first_block_relu(out)
+            out = self.first_bn(out)
+        out = self.first_relu(out)
         
         # stages
-        for i_block in range(self.n_block):
-            net = self.basicblock_list[i_block]
+        for i_stage in range(self.n_stages):
+            net = self.stage_list[i_stage]
             out = net(out)
 
         # final prediction
         out = out.mean(-1)
         out = self.dense(out)
         
-        return out    
+        return out
