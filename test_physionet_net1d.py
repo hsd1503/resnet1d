@@ -47,9 +47,9 @@ if __name__ == "__main__":
 
     model = Net1D(
         in_channels=1, 
-        base_filters=64, 
+        base_filters=256, 
         ratio=1.0, 
-        filter_mul_list=[1,2,2,4,4,8,8],
+        filter_mul_list=[1,2,2,4,4,8,8], 
         m_blocks_list=[2,2,2,2,2,2,2], 
         kernel_size=16, 
         stride=2, 
