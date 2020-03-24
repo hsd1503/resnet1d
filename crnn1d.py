@@ -100,7 +100,7 @@ class CRNN(nn.Module):
         if self.verbose:
             print(out.shape)
         _, (out, _) = self.rnn(out)
-        out = torch.squeeze(out)
+        out = torch.squeeze(out, dim=0)
         if self.verbose:
             print(out.shape)
         out = self.dense(out)
