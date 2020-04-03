@@ -159,6 +159,12 @@ class BasicBlock(nn.Module):
             stride=1,
             groups=1)
 
+        # Squeeze-and-Excitation
+        r = 2
+        self.se_fc1 = nn.Linear(self.out_channels, self.out_channels//r)
+        self.se_fc2 = nn.Linear(self.out_channels//r, self.out_channels)
+        self.se_relu = nn.ReLU()
+
         if self.downsample:
             self.max_pool = MyMaxPool1dPadSame(kernel_size=self.stride)
 
@@ -190,7 +196,15 @@ class BasicBlock(nn.Module):
         out = self.relu3(out)
         if self.use_do:
             out = self.do3(out)
-        out = self.conv3(out)
+        out = self.conv3(out) # (n_sample, n_channel, n_length)
+
+        # Squeeze-and-Excitation
+        se = out.mean(-1) # (n_sample, n_channel)
+        se = self.se_fc1(se)
+        se = self.se_relu(se)
+        se = self.se_fc2(se)
+        se = F.sigmoid(se) # (n_sample, n_channel)
+        out = torch.einsum('abc,ab->abc', out, se)
         
         # if downsample, also downsample identity
         if self.downsample:
@@ -291,7 +305,7 @@ class Net1D(nn.Module):
         m_blocks_list: list, number of blocks of each stage
         kernel_size
         stride
-        groups
+        groups_width
         n_stages
         n_classes
         use_bn
@@ -299,7 +313,7 @@ class Net1D(nn.Module):
 
     """
 
-    def __init__(self, in_channels, base_filters, ratio, filter_mul_list, m_blocks_list, kernel_size, stride, groups, n_classes, use_bn=True, use_do=True, verbose=False):
+    def __init__(self, in_channels, base_filters, ratio, filter_mul_list, m_blocks_list, kernel_size, stride, groups_width, n_classes, use_bn=True, use_do=True, verbose=False):
         super(Net1D, self).__init__()
         
         self.in_channels = in_channels
@@ -309,7 +323,7 @@ class Net1D(nn.Module):
         self.m_blocks_list = m_blocks_list
         self.kernel_size = kernel_size
         self.stride = stride
-        self.groups = groups
+        self.groups_width = groups_width
         self.n_stages = len(filter_mul_list)
         self.n_classes = n_classes
         self.use_bn = use_bn
@@ -337,7 +351,7 @@ class Net1D(nn.Module):
                 ratio=self.ratio, 
                 kernel_size=self.kernel_size, 
                 stride=self.stride, 
-                groups=self.groups, 
+                groups=out_channels//self.groups_width, 
                 i_stage=i_stage,
                 m_blocks=m_blocks, 
                 use_bn=self.use_bn, 
