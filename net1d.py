@@ -91,6 +91,9 @@ class MyMaxPool1dPadSame(nn.Module):
         
         return net
     
+def swish(x):
+    return x * F.sigmoid(x)
+
 class BasicBlock(nn.Module):
     """
     Basic Block: 
@@ -128,7 +131,7 @@ class BasicBlock(nn.Module):
 
         # the first conv, conv1
         self.bn1 = nn.BatchNorm1d(in_channels)
-        self.relu1 = nn.ReLU()
+        self.relu1 = swish()
         self.do1 = nn.Dropout(p=0.5)
         self.conv1 = MyConv1dPadSame(
             in_channels=self.in_channels, 
@@ -139,7 +142,7 @@ class BasicBlock(nn.Module):
 
         # the second conv, convk
         self.bn2 = nn.BatchNorm1d(self.middle_channels)
-        self.relu2 = nn.ReLU()
+        self.relu2 = swish()
         self.do2 = nn.Dropout(p=0.5)
         self.conv2 = MyConv1dPadSame(
             in_channels=self.middle_channels, 
@@ -150,7 +153,7 @@ class BasicBlock(nn.Module):
 
         # the third conv, conv1
         self.bn3 = nn.BatchNorm1d(self.middle_channels)
-        self.relu3 = nn.ReLU()
+        self.relu3 = swish()
         self.do3 = nn.Dropout(p=0.5)
         self.conv3 = MyConv1dPadSame(
             in_channels=self.middle_channels, 
@@ -163,7 +166,7 @@ class BasicBlock(nn.Module):
         r = 2
         self.se_fc1 = nn.Linear(self.out_channels, self.out_channels//r)
         self.se_fc2 = nn.Linear(self.out_channels//r, self.out_channels)
-        self.se_relu = nn.ReLU()
+        self.se_relu = swish()
 
         if self.downsample:
             self.max_pool = MyMaxPool1dPadSame(kernel_size=self.stride)
@@ -337,7 +340,7 @@ class Net1D(nn.Module):
             kernel_size=self.kernel_size, 
             stride=2)
         self.first_bn = nn.BatchNorm1d(base_filters)
-        self.first_relu = nn.ReLU()
+        self.first_relu = swish()
 
         # stages
         self.stage_list = nn.ModuleList()
