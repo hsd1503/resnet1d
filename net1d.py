@@ -91,8 +91,9 @@ class MyMaxPool1dPadSame(nn.Module):
         
         return net
     
-def swish(x):
-    return x * F.sigmoid(x)
+class Swish(nn.Module):
+    def forward(self, x):
+        return x * F.sigmoid(x)
 
 class BasicBlock(nn.Module):
     """
@@ -131,7 +132,7 @@ class BasicBlock(nn.Module):
 
         # the first conv, conv1
         self.bn1 = nn.BatchNorm1d(in_channels)
-        self.relu1 = swish()
+        self.activation1 = Swish()
         self.do1 = nn.Dropout(p=0.5)
         self.conv1 = MyConv1dPadSame(
             in_channels=self.in_channels, 
@@ -142,7 +143,7 @@ class BasicBlock(nn.Module):
 
         # the second conv, convk
         self.bn2 = nn.BatchNorm1d(self.middle_channels)
-        self.relu2 = swish()
+        self.activation2 = Swish()
         self.do2 = nn.Dropout(p=0.5)
         self.conv2 = MyConv1dPadSame(
             in_channels=self.middle_channels, 
@@ -153,7 +154,7 @@ class BasicBlock(nn.Module):
 
         # the third conv, conv1
         self.bn3 = nn.BatchNorm1d(self.middle_channels)
-        self.relu3 = swish()
+        self.activation3 = Swish()
         self.do3 = nn.Dropout(p=0.5)
         self.conv3 = MyConv1dPadSame(
             in_channels=self.middle_channels, 
@@ -166,7 +167,7 @@ class BasicBlock(nn.Module):
         r = 2
         self.se_fc1 = nn.Linear(self.out_channels, self.out_channels//r)
         self.se_fc2 = nn.Linear(self.out_channels//r, self.out_channels)
-        self.se_relu = swish()
+        self.se_activation = Swish()
 
         if self.downsample:
             self.max_pool = MyMaxPool1dPadSame(kernel_size=self.stride)
@@ -180,7 +181,7 @@ class BasicBlock(nn.Module):
         if not self.is_first_block:
             if self.use_bn:
                 out = self.bn1(out)
-            out = self.relu1(out)
+            out = self.activation1(out)
             if self.use_do:
                 out = self.do1(out)
         out = self.conv1(out)
@@ -188,7 +189,7 @@ class BasicBlock(nn.Module):
         # the second conv, convk
         if self.use_bn:
             out = self.bn2(out)
-        out = self.relu2(out)
+        out = self.activation2(out)
         if self.use_do:
             out = self.do2(out)
         out = self.conv2(out)
@@ -196,7 +197,7 @@ class BasicBlock(nn.Module):
         # the third conv, conv1
         if self.use_bn:
             out = self.bn3(out)
-        out = self.relu3(out)
+        out = self.activation3(out)
         if self.use_do:
             out = self.do3(out)
         out = self.conv3(out) # (n_sample, n_channel, n_length)
@@ -204,7 +205,7 @@ class BasicBlock(nn.Module):
         # Squeeze-and-Excitation
         se = out.mean(-1) # (n_sample, n_channel)
         se = self.se_fc1(se)
-        se = self.se_relu(se)
+        se = self.se_activation(se)
         se = self.se_fc2(se)
         se = F.sigmoid(se) # (n_sample, n_channel)
         out = torch.einsum('abc,ab->abc', out, se)
@@ -340,7 +341,7 @@ class Net1D(nn.Module):
             kernel_size=self.kernel_size, 
             stride=2)
         self.first_bn = nn.BatchNorm1d(base_filters)
-        self.first_relu = swish()
+        self.first_activation = Swish()
 
         # stages
         self.stage_list = nn.ModuleList()
@@ -374,7 +375,7 @@ class Net1D(nn.Module):
         out = self.first_conv(out)
         if self.use_bn:
             out = self.first_bn(out)
-        out = self.first_relu(out)
+        out = self.first_activation(out)
         
         # stages
         for i_stage in range(self.n_stages):
