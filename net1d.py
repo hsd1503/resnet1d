@@ -248,6 +248,7 @@ class BasicStage(nn.Module):
 
         self.block_list = nn.ModuleList()
         for i_block in range(self.m_blocks):
+            
             # first block
             if self.i_stage == 0 and i_block == 0:
                 self.is_first_block = True
@@ -305,7 +306,7 @@ class Net1D(nn.Module):
     params:
         in_channels
         base_filters
-        filter_mul_list: list, multiplier of base_filters for each stage
+        filter_list: list, filters for each stage
         m_blocks_list: list, number of blocks of each stage
         kernel_size
         stride
@@ -317,18 +318,18 @@ class Net1D(nn.Module):
 
     """
 
-    def __init__(self, in_channels, base_filters, ratio, filter_mul_list, m_blocks_list, kernel_size, stride, groups_width, n_classes, use_bn=True, use_do=True, verbose=False):
+    def __init__(self, in_channels, base_filters, ratio, filter_list, m_blocks_list, kernel_size, stride, groups_width, n_classes, use_bn=True, use_do=True, verbose=False):
         super(Net1D, self).__init__()
         
         self.in_channels = in_channels
         self.base_filters = base_filters
         self.ratio = ratio
-        self.filter_mul_list = filter_mul_list
+        self.filter_list = filter_list
         self.m_blocks_list = m_blocks_list
         self.kernel_size = kernel_size
         self.stride = stride
         self.groups_width = groups_width
-        self.n_stages = len(filter_mul_list)
+        self.n_stages = len(filter_list)
         self.n_classes = n_classes
         self.use_bn = use_bn
         self.use_do = use_do
@@ -347,7 +348,8 @@ class Net1D(nn.Module):
         self.stage_list = nn.ModuleList()
         in_channels = self.base_filters
         for i_stage in range(self.n_stages):
-            out_channels = self.base_filters * self.filter_mul_list[i_stage]
+
+            out_channels = self.filter_list[i_stage]
             m_blocks = self.m_blocks_list[i_stage]
             tmp_stage = BasicStage(
                 in_channels=in_channels, 
