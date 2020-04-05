@@ -25,7 +25,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from torchsummary import summary
 
-def run_exp(base_filters, filter_mul_list, m_blocks_list):
+def run_exp(base_filters, filter_list, m_blocks_list):
 
     dataset = MyDataset(X_train, Y_train)
     dataset_val = MyDataset(X_test, Y_test)
@@ -42,20 +42,18 @@ def run_exp(base_filters, filter_mul_list, m_blocks_list):
         in_channels=1, 
         base_filters=base_filters, 
         ratio=1.0, 
-        filter_mul_list=filter_mul_list, 
+        filter_list=filter_list, 
         m_blocks_list=m_blocks_list, 
         kernel_size=16, 
         stride=2, 
         groups_width=16,
-        verbose=True, 
+        verbose=False, 
         n_classes=4)
     model.to(device)
 
     summary(model, (X_train.shape[1], X_train.shape[2]), device=device_str)
-    exit()
 
     # train and test
-    model.verbose = False
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-3)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10)
     loss_func = torch.nn.CrossEntropyLoss()
@@ -147,22 +145,21 @@ if __name__ == "__main__":
 
     batch_size = 32
 
-    is_debug = True
+    is_debug = False
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/regnet/challenge2017/debug')
     else:
-        writer = SummaryWriter('/nethome/shong375/log/regnet/challenge2017/run')
+        writer = SummaryWriter('/nethome/shong375/log/regnet/challenge2017/first')
 
     # make data, (sample, channel, length)
     X_train, X_val, X_test, Y_train, Y_val, Y_test, pid_val, pid_test = read_data_physionet_4_with_val()
     print(X_train.shape, Y_train.shape)
 
     base_filters = 64
-    w_a = 2.5
-    filter_mul_list=[1,w_a,w_a,w_a**2,w_a**2,w_a**3,w_a**3]
+    filter_list=[64,160,160,400,400,1024,1024]
     m_blocks_list=[2,2,2,3,3,4,4]
 
     run_exp(
         base_filters=base_filters,
-        filter_mul_list=filter_mul_list,
+        filter_list=filter_list,
         m_blocks_list=m_blocks_list)
