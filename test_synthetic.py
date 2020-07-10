@@ -25,9 +25,9 @@ if __name__ == "__main__":
     
     # make data
     n_samples = 1000
-    n_length = 2048
-    n_channel = 18
-    n_classes = 6
+    n_length = 7500
+    n_channel = 1
+    n_classes = 2
     data, label = read_data_generated(n_samples=n_samples, n_length=n_length, n_channel=n_channel, n_classes=n_classes)
     print(data.shape, Counter(label))
     dataset = MyDataset(data, label)
@@ -41,14 +41,14 @@ if __name__ == "__main__":
     # 98 layer (48*2+2): 48, 6, 12
     model = ResNet1D(
         in_channels=n_channel, 
-        base_filters=128, 
+        base_filters=64, 
         kernel_size=16, 
         stride=2, 
-        n_block=48, 
+        n_block=16, 
         groups=32,
         n_classes=n_classes, 
-        downsample_gap=6, 
-        increasefilter_gap=12, 
+        downsample_gap=2, 
+        increasefilter_gap=4, 
         verbose=False)
     model.to(device)
     summary(model, (data.shape[1], data.shape[2]))

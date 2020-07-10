@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     is_debug = False
     
-    batch_size = 128
+    batch_size = 256
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/crnn1d/challenge2017/debug')
     else:
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # make data
     # preprocess_physionet() ## run this if you have no preprocessed data yet
-    X_train, X_test, Y_train, Y_test, pid_test = read_data_physionet_2_clean(window_size=3000, stride=500)
+    X_train, X_test, Y_train, Y_test, pid_test = read_data_physionet_2_clean(window_size=3000, stride=3000)
     print(X_train.shape, Y_train.shape)
     dataset = MyDataset(X_train, Y_train)
     dataset_test = MyDataset(X_test, Y_test)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
     model = CRNN(
         in_channels=1, 
-        out_channels=16, 
+        out_channels=256, 
         n_len_seg=50, 
         verbose=False,
         n_classes=2,

@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
     # make data
     # preprocess_physionet() ## run this if you have no preprocessed data yet
+    # (sample, channel, length)
     X_train, X_test, Y_train, Y_test, pid_test = read_data_physionet_4()
     print(X_train.shape, Y_train.shape)
     dataset = MyDataset(X_train, Y_train)
