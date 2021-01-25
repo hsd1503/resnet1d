@@ -1,8 +1,20 @@
-In construction ...
+
 
 # Introduction
 
 This is a PyTorch implementation of ResNet [0] and ResNeXt [1] on one-dimensional data classification, with applications on ECG Classification. 
+
+If you use this code in your work, please cite our paper
+
+```
+@inproceedings{hong2020holmes,
+  title={HOLMES: Health OnLine Model Ensemble Serving for Deep Learning Models in Intensive Care Units},
+  author={Hong, Shenda and Xu, Yanbo and Khare, Alind and Priambada, Satria and Maher, Kevin and Aljiffry, Alaa and Sun, Jimeng and Tumanov, Alexey},
+  booktitle={Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining},
+  pages={1614--1624},
+  year={2020}
+}
+```
 
 # Usage
 
@@ -28,13 +40,17 @@ Required: Python 3.7.5, PyTorch 1.2.0, torchsummary
 
 Optional: Ray 0.8.0
 
-# Applications: ECG Classification (PhysioNet/CinC Challenge 2017)
+# Application 1: ECG Classification (PhysioNet/CinC Challenge 2017)
+
+The initial code has been used in our previous work [2,3] for deep feature extraction, which won one of the First place (F1=0.83) of this Challenge. The original tensorflow (tflearn) version can be found at https://github.com/hsd1503/ENCASE . 
 
 Dataset: "AF Classification from a short single lead ECG recording". Data can be found at https://archive.physionet.org/challenge/2017/#challenge-data Please use Revised labels (v3) at https://archive.physionet.org/challenge/2017/REFERENCE-v3.csv , or you can download my preprocessed dataset challenge2017.pkl from https://drive.google.com/drive/folders/1AuPxvGoyUbKcVaFmeyt3xsqj6ucWZezf .
 
 This repository also contains data preprocessing code, please see util.py for details.
 
-The model has been used in our previous work [2,3] for deep feature extraction, which won one of the First place (F1=0.83) of this Challenge. The original tensorflow (tflearn) version can be found at https://github.com/hsd1503/ENCASE (If you use this code in your work, please cite our papers). 
+# Applications 2: Health Monitoring in Intensive Care Units
+
+We built a set of models (called model zoo) for ensemble serving in Intensive Care Units. Please see more at [6]. 
 
 # References
 
@@ -49,3 +65,5 @@ The model has been used in our previous work [2,3] for deep feature extraction, 
 [4] Yuxi Zhou, Shenda Hong, Meng Wu, Junyuan Shang, Qingyun Wang, Junqing Xie, Hongyan Li. K-margin-based Residual-convolution-recurrent Neural Network for Atrial Fibrillation Detection. International Joint Conference on Artificial Intelligence (IJCAI) 2019 [paper](https://www.ijcai.org/proceedings/2019/0839.pdf)
 
 [5] Philipp Moritz, Robert Nishihara, Stephanie Wang, Alexey Tumanov, Richard Liaw, Eric Liang, Melih Elibol, Zongheng Yang, William Paul, Michael I. Jordan, Ion Stoica: Ray: A Distributed Framework for Emerging AI Applications. OSDI 2018: 561-577
+
+[6] Shenda Hong#, Yanbo Xu#, Alind Khare#, Satria Priambada#, Kevin Maher, Alaa Aljiffry, Jimeng Sun, Alexey Tumanov . HOLMES: Health OnLine Model Ensemble Serving for Deep Learning Models in Intensive Care Units . In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining [paper](https://arxiv.org/pdf/2008.04063.pdf), [code](https://github.com/hsd1503/HOLMES)
