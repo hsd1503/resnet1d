@@ -34,6 +34,41 @@ python test_ray.py
 
 model_detail/ shows model architectures
 
+In ```trained_model```, we also provide a model ```model.pth``` trained using Challenge 2017 data. The model's parameters is as follows:
+```
+model = Net1D(
+        in_channels=1,
+        base_filters=64,
+        ratio=1.0,
+        filter_list = [64, 160, 160, 400, 400, 1024, 1024],
+        m_blocks_list = [2, 2, 2, 3, 3, 4, 4],
+        kernel_size=16,
+        stride=2,
+        groups_width=16,
+        verbose=False,
+        n_classes=4)
+```
+
+We can directly load this model by:
+```
+model = torch.load('model.pth')
+```
+The below image shows the change of training loss with epoch.
+![image](https://user-images.githubusercontent.com/67882404/144691635-ea14e210-81f9-4889-9cbd-dd1a97290ca4.png)
+
+Confusion Matrix on Validation Set:
+| | Normal | AF | Others | Noisy |
+| ---- | ---- | ---- | ---- | ---- |
+|**Normal** | 0.878| 0.017 | 0.069 | 0.036 |
+| **AF** | 0.032 | 0.861 | 0.077 | 0.030 |
+| **Others** | 0.310 | 0.126 | 0.515 | 0.049 |
+| **Noisy** | 0.107 | 0.058 | 0.020 | 0.815|
+
+Other Metrics on Validation Set:
+|AUC|F1|ACC|
+|----|----|----|
+|0.931|0.762|0.769|
+
 # Requirements
 
 Required: Python 3.7.5, PyTorch 1.2.0, torchsummary
