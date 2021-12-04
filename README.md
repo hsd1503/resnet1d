@@ -34,7 +34,7 @@ python test_ray.py
 
 model_detail/ shows model architectures
 
-We also provide a model ```model.pth``` trained using Challenge 2017 data. The model's parameters is as follows:
+In ```trained_model```, we also provide a model ```model.pth``` trained using Challenge 2017 data. The model's parameters is as follows:
 ```
 model = Net1D(
         in_channels=1,
