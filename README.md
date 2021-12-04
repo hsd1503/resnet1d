@@ -65,7 +65,7 @@ Confusion Matrix on Validation Set:
 | **Noisy** | 0.107 | 0.058 | 0.020 | 0.815|
 
 Other Metrics on Validation Set:
-|AUC|F1|ACC|
+|AUC|F1-score|Accuracy|
 |----|----|----|
 |0.931|0.762|0.769|
 
